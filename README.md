@@ -66,11 +66,6 @@
 
 10.使用
 Step 1. Add the JitPack repository to your build file
-
-gradle
-maven
-sbt
-leiningen
 Add it in your root build.gradle at the end of repositories:
 
 	allprojects {
@@ -79,8 +74,10 @@ Add it in your root build.gradle at the end of repositories:
 			maven { url 'https://jitpack.io' }
 		}
 	}
+
 Step 2. Add the dependency
-dependencies {
+
+    dependencies {
 	        implementation 'com.github.fengxiaocan:SkinSupport:[![](https://jitpack.io/v/fengxiaocan/SkinSupport.svg)](https://jitpack.io/#fengxiaocan/SkinSupport)'
 	}
 
