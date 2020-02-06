@@ -64,5 +64,26 @@
 
 9.生成皮肤:需要另外开一个AppModule,删除java下的文件以及res下的其他文件,只保留需要换肤的color,drawable,名称id保持一致,AndroidManifest不需要application节点,然后生成apk,把这个资源文件的apk放到手机内,注册并加载该皮肤包即可
 
+10.使用
+Step 1. Add the JitPack repository to your build file
+
+gradle
+maven
+sbt
+leiningen
+Add it in your root build.gradle at the end of repositories:
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+Step 2. Add the dependency
+dependencies {
+	        implementation 'com.github.fengxiaocan:SkinSupport:[![](https://jitpack.io/v/fengxiaocan/SkinSupport.svg)](https://jitpack.io/#fengxiaocan/SkinSupport)'
+	}
+
+
     
     
