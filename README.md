@@ -75,10 +75,10 @@ Add it in your root build.gradle at the end of repositories:
 		}
 	}
 
-Step 2. Add the dependency
+Step 2. Add the dependency(Tag=[![](https://jitpack.io/v/fengxiaocan/SkinSupport.svg)](https://jitpack.io/#fengxiaocan/SkinSupport))
 
     dependencies {
-	        implementation 'com.github.fengxiaocan:SkinSupport:[![](https://jitpack.io/v/fengxiaocan/SkinSupport.svg)](https://jitpack.io/#fengxiaocan/SkinSupport)'
+	        implementation 'com.github.fengxiaocan:SkinSupport:Tag'
 	}
 
 
