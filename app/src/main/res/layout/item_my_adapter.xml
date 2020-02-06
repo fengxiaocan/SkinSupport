@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/mainItem"
+    android:orientation="vertical">
+
+    <com.skin.test.MyView
+        android:id="@+id/tv_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="5dp"
+        android:textSize="18sp" />
+
+    <com.skin.test.SView
+        android:id="@+id/s_view"
+        android:src="@drawable/ic_bg"
+        android:layout_gravity="center"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+</LinearLayout>
