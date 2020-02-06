@@ -15,7 +15,6 @@ import com.skin.libs.SkinManager;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         SkinManager.getInstance().registerSkin(this);

@@ -21,8 +21,4 @@ public class App extends Application{
         SkinManager.getInstance().registerAssetSkin("skintheme.skin");
     }
 
-    @Override
-    public Resources getResources() {
-        return super.getResources();
-    }
 }

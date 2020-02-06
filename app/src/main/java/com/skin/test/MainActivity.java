@@ -66,6 +66,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public boolean applySkin(View view) {
         if (view instanceof SView) {
             ((SView) view).setImageDrawable(SkinManager.getInstance().getDrawable(R.drawable.ic_bg));
+            return true;
         }
         return false;
     }
