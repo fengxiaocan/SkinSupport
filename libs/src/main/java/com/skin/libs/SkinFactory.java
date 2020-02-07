@@ -7,6 +7,11 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.skin.libs.attr.AttrFactory;
+import com.skin.libs.attr.SkinAttr;
+import com.skin.libs.iface.ISkinItem;
+import com.skin.libs.iface.OnSkinViewMonitor;
+
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +49,9 @@ public class SkinFactory implements LayoutInflater.Factory {
         if (view != null) {
             collectViewAttr(view, context, attrs);
             if (viewMonitor != null) {
-                if (viewMonitor.inflateSkin(view)) {
+                if (viewMonitor.isSkinView(view)) {
                     skinViews.add(new SoftReference<View>(view));
-                    if (SkinManager.getInstance().isExternalSkin()) {
+                    if (SkinManager.getInstance().isHasSkin()) {
                         viewMonitor.applySkin(view);
                     }
                 }
@@ -71,8 +76,9 @@ public class SkinFactory implements LayoutInflater.Factory {
             } else {    //带".",说明是自定义的View
                 view = LayoutInflater.from(context).createView(name, null, attrs);
                 if (view instanceof ISkinItem) {
+                    //自定义view的皮肤支持
                     skinItems.add(new SoftReference<ISkinItem>((ISkinItem) view));
-                    if (SkinManager.getInstance().isExternalSkin()) {
+                    if (SkinManager.getInstance().isHasSkin()) {
                         SkinManager.getInstance().apply((ISkinItem) view);
                     }
                 }
@@ -84,29 +90,35 @@ public class SkinFactory implements LayoutInflater.Factory {
     }
 
     private void collectViewAttr(View view, Context context, AttributeSet attrs) {
-        List<SkinAttr> skinAttrs = new ArrayList<>();
+        SkinItem skinItem = null;
         int attCount = attrs.getAttributeCount();
         for (int i = 0; i < attCount; ++i) {
             String attributeName = attrs.getAttributeName(i);
-            if (isSupportedAttr(attributeName)) {
+            //是否支持该类型attribute
+            if (AttrFactory.isSupportedAttr(attributeName)) {
                 String attributeValue = attrs.getAttributeValue(i);
                 if (attributeValue.startsWith("@")) {
                     int resId = Integer.parseInt(attributeValue.substring(1));
+                    if (resId == 0) {
+                        continue;
+                    }
                     String resName = context.getResources().getResourceEntryName(resId);
                     String attrType = context.getResources().getResourceTypeName(resId);
-                    skinAttrs.add(new SkinAttr(attributeName, attrType, resName, resId));
-                    SkinItem skinItem = new SkinItem(view, skinAttrs);
-                    if (SkinManager.getInstance().isExternalSkin()) {
-                        SkinManager.getInstance().apply(skinItem);
+
+                    SkinAttr skinAttr = AttrFactory.createAttr(attributeName, attrType, resName, resId);
+                    if (skinItem == null) {
+                        skinItem = new SkinItem(view);
                     }
-                    skinItems.add(new SoftReference<ISkinItem>(skinItem));
+                    skinItem.addAttr(skinAttr);
                 }
             }
         }
-    }
-
-    private boolean isSupportedAttr(String attributeName) {
-        return "background".equals(attributeName) || "textColor".equals(attributeName);
+        if (skinItem != null) {
+            if (SkinManager.getInstance().isHasSkin()) {
+                SkinManager.getInstance().apply(skinItem);
+            }
+            skinItems.add(new SoftReference<ISkinItem>(skinItem));
+        }
     }
 
     public void apply() {
@@ -133,6 +145,9 @@ public class SkinFactory implements LayoutInflater.Factory {
 
     public void recycler() {
         skinItems.clear();
+        if (skinViews != null) {
+            skinViews.clear();
+        }
         skinViews = null;
         skinItems = null;
         viewMonitor = null;

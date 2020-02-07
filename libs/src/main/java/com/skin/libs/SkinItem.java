@@ -3,6 +3,10 @@ package com.skin.libs;
 import android.view.View;
 import android.widget.TextView;
 
+import com.skin.libs.attr.SkinAttr;
+import com.skin.libs.iface.ISkinItem;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class SkinItem implements ISkinItem {
@@ -15,26 +19,21 @@ public class SkinItem implements ISkinItem {
         this.attrs = attrs;
     }
 
+    public SkinItem(View view) {
+        this.view = view;
+        this.attrs = new ArrayList<>();
+    }
+
+    public void addAttr(SkinAttr attr){
+        this.attrs.add(attr);
+    }
+
     @Override
     public void apply() {
         if (view == null || attrs == null)
             return;
         for (SkinAttr attr : attrs) {
-            String attrName = attr.getAttrName();
-            String attrType = attr.getAttrType();
-            String resName = attr.getResName();
-            int resId = attr.getResId();
-            if ("background".equals(attrName)) {
-                if ("color".equals(attrType)) {
-                    view.setBackgroundColor(SkinManager.getInstance().getColor(resName, resId));
-                } else if ("drawable".equals(attrType)) {
-                    view.setBackground(SkinManager.getInstance().getDrawable(resName, resId));
-                }
-            } else if ("textColor".equals(attrName)) {
-                if (view instanceof TextView && "color".equals(attrType)) {
-                    ((TextView) view).setTextColor(SkinManager.getInstance().getColor(resName, resId));
-                }
-            }
+            attr.applySkin(view);
         }
     }
 }

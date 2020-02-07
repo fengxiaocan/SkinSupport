@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.skin.libs.ISkinItem;
+import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.SkinManager;
 
 public class MyView extends TextView implements ISkinItem {

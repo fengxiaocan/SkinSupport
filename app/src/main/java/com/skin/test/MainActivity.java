@@ -1,5 +1,6 @@
 package com.skin.test;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,8 +9,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.skin.libs.OnSkinViewMonitor;
 import com.skin.libs.SkinManager;
+import com.skin.libs.iface.OnSkinViewMonitor;
 
 
 public class MainActivity extends BaseActivity implements View.OnClickListener, OnSkinViewMonitor {
@@ -32,8 +33,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         MyAdapter myAdapter = new MyAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(myAdapter);
+        startActivity(new Intent(this, FragmentActivity.class));
     }
 
     @Override
@@ -48,15 +50,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 SkinManager.getInstance().restoreDefaultTheme();
                 break;
             case R.id.btn_blue:
-                SkinManager.getInstance().loadSkin("skin.skin");
+                SkinManager.getInstance().loadSkin("night.skin");
                 break;
         }
     }
 
     @Override
-    public boolean inflateSkin(View view) {
+    public boolean isSkinView(View view) {
         if (view.getId() == R.id.s_view) {
-
             return true;
         }
         return false;
@@ -70,4 +71,5 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
         return false;
     }
+
 }

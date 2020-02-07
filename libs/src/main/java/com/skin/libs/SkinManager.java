@@ -5,12 +5,19 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.skin.libs.iface.ISkinItem;
+import com.skin.libs.iface.ISkinManager;
+import com.skin.libs.iface.OnSkinObserver;
+import com.skin.libs.iface.OnSkinViewMonitor;
 
 import java.io.Closeable;
 import java.io.File;
@@ -33,23 +40,32 @@ import java.util.Set;
  * 2.继续在application中注册所有的皮肤文件 {@link #registerAssetSkin},{@link #registerFileSkin},{@link #registerSkin}
  * 3.
  */
-public class SkinManager {
+public final class SkinManager implements ISkinManager {
 
     private static final SkinManager mInstance = new SkinManager();
-    //    private final String KEY = "skin_path";
-    private Resources mSkinResources;
+    private static final String KEY = "skin_path";
     private Context context;
-    private String skinPackageName;
-    private boolean isExternalSkin;
+    private SkinResources skinResources;
     private Map<String, SkinFactory> skinFactories = new HashMap<>();
     private List<OnSkinObserver> listeners = new ArrayList<>();
 
-    private SkinManager() { }
+    private SkinManager() {
+    }
 
     public static SkinManager getInstance() {
         return mInstance;
     }
 
+    /**
+     * 是否是夜间模式
+     *
+     * @param configuration
+     * @return
+     */
+    public static boolean isNightMode(Configuration configuration) {
+        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+    }
 
     /**
      * 断言
@@ -77,6 +93,7 @@ public class SkinManager {
     /**
      * 在activity中注册
      */
+    @Override
     public void registerSkin(AppCompatActivity activity) {
         String tag = activity.toString();
         SkinFactory factory = new SkinFactory(activity);
@@ -86,40 +103,20 @@ public class SkinManager {
         skinFactories.put(tag, factory);
     }
 
-    public void addSkinObserver(OnSkinObserver skinObserver){
+    @Override
+    public void addSkinObserver(OnSkinObserver skinObserver) {
         listeners.add(skinObserver);
     }
 
-    public void removeSkinObserver(OnSkinObserver skinObserver){
+    @Override
+    public void removeSkinObserver(OnSkinObserver skinObserver) {
         listeners.add(skinObserver);
     }
-
-//    /**
-//     * 获取皮肤路径
-//     *
-//     * @return
-//     */
-//    public String getSkinPath() {
-//        judge();
-//        String skinPath = (String) SPUtil.get(context, KEY, "");
-//        return TextUtils.isEmpty(skinPath) ? null : skinPath;
-//    }
-
-//    /**
-//     * 保存皮肤
-//     *
-//     * @param path
-//     */
-//    public void saveSkinPath(String path) {
-//        judge();
-//        SPUtil.put(context, KEY, path);
-//    }
 
     /**
      * 取消activity的注册监听
-     *
-     * @param activity
      */
+    @Override
     public void unregisterSkin(AppCompatActivity activity) {
         SkinFactory factory = skinFactories.remove(activity.toString());
         if (factory != null) {
@@ -128,25 +125,12 @@ public class SkinManager {
     }
 
     /**
-     * 是否有设置皮肤
-     *
-     * @return
-     */
-    public boolean isExternalSkin() {
-        judge();
-        return isExternalSkin;
-    }
-
-    /**
      * 初始化
-     *
-     * @param context
      */
+    @Override
     public void init(Context context) {
         this.context = context.getApplicationContext();
-//        String skinPath = (String) SPUtil.get(context, KEY, "");
-//        isExternalSkin = !TextUtils.isEmpty(skinPath);
-//        loadSkin(getSkinPath());
+        this.skinResources = new SkinResources(context);
     }
 
     /**
@@ -154,155 +138,35 @@ public class SkinManager {
      *
      * @param name 皮肤的名字
      */
+    @Override
     public void loadSkin(String name) {
         judge();
-        if (name == null)
+        if (TextUtils.isEmpty(name))
             return;
         new LoadTask().execute(name);
     }
 
-    /**
-     * 获取原始颜色值
-     *
-     * @param resId
-     * @return
-     */
-    private int getOriginColor(int resId) {
-        judge();
-        return context.getResources().getColor(resId);
-    }
-
-    /**
-     * 获取皮肤颜色值
-     *
-     * @param resourceName
-     * @return
-     */
-    private int getSkinColor(String resourceName, int resId) {
-        try {
-            int newResId = mSkinResources.getIdentifier(resourceName, "color", skinPackageName);
-            return mSkinResources.getColor(newResId);
-        } catch (Exception e) {
-            return getOriginColor(resId);
-        }
-    }
-
-    /**
-     * 是否没有皮肤
-     *
-     * @return
-     */
-    private boolean isOriginTheme() {
-        return mSkinResources == null || !isExternalSkin;
-    }
-
-    /**
-     * 获取皮肤资源的名字
-     *
-     * @param resId
-     * @return
-     */
-    public String getSkinResourceName(int resId) {
-        String entryName = context.getResources().getResourceEntryName(resId);
-//        String resourceName = context.getResources().getResourceName(resId);
-//        Log.e("noah","entryName="+entryName+" resourceName="+resourceName);
-//        resourceName = resourceName.replace(packageName, skinPackageName);
-        return entryName;
-    }
-
-    /**
-     * 根据资源id获取颜色值
-     *
-     * @param resId
-     * @return
-     */
-    public int getColor(int resId) {
-        if (isOriginTheme()) {
-            return getOriginColor(resId);
-        }
-        return getSkinColor(getSkinResourceName(resId), resId);
-    }
-
-    /**
-     * 获取颜色值
-     *
-     * @param resName
-     * @param resId
-     * @return
-     */
-    public int getColor(String resName, int resId) {
-        if (isOriginTheme()) {
-            return getOriginColor(resId);
-        }
-        return getSkinColor(resName, resId);
-    }
-
-    /**
-     * 获取原始的主题drawable
-     *
-     * @param resId
-     * @return
-     */
-    private Drawable getOriginDrawable(int resId) {
-        judge();
-        return context.getResources().getDrawable(resId);
-    }
-
-    /**
-     * 获取其他皮肤的drawable
-     *
-     * @param resName
-     * @param resId
-     * @return
-     */
-    private Drawable getSkinDrawable(String resName, int resId) {
-        try {
-            int newResId = mSkinResources.getIdentifier(resName, "drawable", skinPackageName);
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                return mSkinResources.getDrawable(newResId);
-            } else {
-                return mSkinResources.getDrawable(newResId, null);
+    @Override
+    public void loadLastSkin() {
+        //加载上一次的
+        String skinPath = SPUtil.get(context, KEY, "");
+        if (!TextUtils.isEmpty(skinPath)) {
+            File file = new File(skinPath);
+            if (file.exists()) {
+                loadSkin(file.getName());
             }
-        } catch (Exception e) {
-            return getOriginDrawable(resId);
         }
     }
 
-    /**
-     * 获取drawable
-     *
-     * @param resName
-     * @param resId
-     * @return
-     */
-    public Drawable getDrawable(String resName, int resId) {
-        if (isOriginTheme()) {
-            return getOriginDrawable(resId);
-        }
-        return getSkinDrawable(resName, resId);
-    }
-
-    /**
-     * 根据资源id获取drawable
-     *
-     * @param resId
-     * @return
-     */
-    public Drawable getDrawable(int resId) {
-        if (isOriginTheme()) {
-            return getOriginDrawable(resId);
-        }
-        return getSkinDrawable(getSkinResourceName(resId), resId);
-    }
 
     /**
      * 重置 默认的主题
      */
+    @Override
     public void restoreDefaultTheme() {
         judge();
-//        SPUtil.put(context, KEY, "");
-        isExternalSkin = false;
-        mSkinResources = null;
+        skinResources.setSkinResources(null, null);
+        SPUtil.put(context, KEY, "");
         notifySkinUpdate();
     }
 
@@ -311,10 +175,16 @@ public class SkinManager {
      *
      * @param skinItem
      */
+    @Override
     public void apply(ISkinItem skinItem) {
         if (skinItem != null) {
             skinItem.apply();
         }
+    }
+
+    @Override
+    public boolean isHasSkin() {
+        return skinResources.isHasSkin();
     }
 
     /**
@@ -322,6 +192,7 @@ public class SkinManager {
      *
      * @return
      */
+    @Override
     public File getSkinDir() {
         File skinDir = new File(context.getFilesDir().getParentFile(), "skin");
         skinDir.mkdir();
@@ -331,6 +202,7 @@ public class SkinManager {
     /**
      * 把asset中的皮肤文件复制到内存卡中
      */
+    @Override
     public void registerAssetSkin(String name) {
         try {
             InputStream open = context.getAssets().open(name);
@@ -340,6 +212,7 @@ public class SkinManager {
         }
     }
 
+    @Override
     public void registerFileSkin(String fileName) {
         try {
             InputStream open = new FileInputStream(fileName);
@@ -352,7 +225,8 @@ public class SkinManager {
     /**
      * 注册皮肤
      */
-    public void registerSkin(InputStream is, String name) {
+    @Override
+    public void registerSkin(final InputStream is, final String name) {
         judge();
         File skinDir = getSkinDir();
         File file = new File(skinDir, name);
@@ -380,6 +254,41 @@ public class SkinManager {
         }
     }
 
+    @Override
+    public int getColor(int resId) {
+        return skinResources.getColor(resId);
+    }
+
+    @Override
+    public int getColor(String resName, int resId) {
+        return skinResources.getColor(resName, resId);
+    }
+
+    @Override
+    public ColorStateList getColorStateList(int resId) {
+        return skinResources.getColorStateList(resId);
+    }
+
+    @Override
+    public ColorStateList getColorStateList(String resName, int resId) {
+        return skinResources.getColorStateList(resName, resId);
+    }
+
+    @Override
+    public Drawable getDrawable(int resId) {
+        return skinResources.getDrawable(resId);
+    }
+
+    @Override
+    public Drawable getDrawable(String resName, int resId) {
+        return skinResources.getDrawable(resName, resId);
+    }
+
+    @Override
+    public Drawable getDrawable(String resName, String resType, int resId) {
+        return skinResources.getDrawable(resName, resType, resId);
+    }
+
     @SuppressLint("StaticFieldLeak")
     class LoadTask extends AsyncTask<String, Void, Resources> {
         @Override
@@ -393,7 +302,8 @@ public class SkinManager {
 
                 PackageManager mPm = context.getPackageManager();
                 PackageInfo mInfo = mPm.getPackageArchiveInfo(skinPkgPath, PackageManager.GET_ACTIVITIES);
-                skinPackageName = mInfo.packageName;
+                skinResources.setSkinPackageName(mInfo.packageName);
+
                 AssetManager assetManager = AssetManager.class.newInstance();
                 Method addAssetPath = assetManager.getClass().getMethod("addAssetPath",
                         String.class);
@@ -401,7 +311,8 @@ public class SkinManager {
                 Resources superRes = context.getResources();
                 Resources skinResource = new Resources(assetManager, superRes
                         .getDisplayMetrics(), superRes.getConfiguration());
-//                saveSkinPath(skinPkgPath);
+                //保持皮肤
+                SPUtil.put(context, KEY, skinPkgPath);
                 return skinResource;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -411,10 +322,8 @@ public class SkinManager {
 
         @Override
         protected void onPostExecute(Resources resources) {
-            super.onPostExecute(resources);
-            mSkinResources = resources;
-            if (mSkinResources != null) {
-                isExternalSkin = true;
+            skinResources.setSkinResources(resources);
+            if (skinResources.isHasSkin()) {
                 notifySkinUpdate();
             }
         }

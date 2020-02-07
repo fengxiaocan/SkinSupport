@@ -5,7 +5,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.skin.libs.ISkinItem;
+import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.SkinManager;
 
 public class MyHolder extends RecyclerView.ViewHolder {

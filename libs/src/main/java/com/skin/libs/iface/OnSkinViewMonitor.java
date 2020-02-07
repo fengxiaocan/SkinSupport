@@ -1,9 +1,9 @@
-package com.skin.libs;
+package com.skin.libs.iface;
 
 import android.view.View;
 
 public interface OnSkinViewMonitor {
-    boolean inflateSkin(View view);
+    boolean isSkinView(View view);
 
     boolean applySkin(View view);
 }

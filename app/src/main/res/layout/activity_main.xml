@@ -34,7 +34,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="8dp"
         android:background="@color/mainButton"
-        android:text="默认" />
+        android:text="默认"
+        android:layout_marginLeft="8dp" />
 
     <Button
         android:id="@+id/btn_blue"
@@ -44,6 +45,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="8dp"
         android:background="@color/mainButton"
-        android:text="闷骚蓝" />
+        android:text="闷骚蓝"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp" />
 
 </RelativeLayout>

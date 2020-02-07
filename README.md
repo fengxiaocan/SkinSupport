@@ -64,7 +64,24 @@
 
 9.生成皮肤:需要另外开一个AppModule,删除java下的文件以及res下的其他文件,只保留需要换肤的color,drawable,名称id保持一致,AndroidManifest不需要application节点,然后生成apk,把这个资源文件的apk放到手机内,注册并加载该皮肤包即可
 
-10.使用
+10.夜间模式的使用
+
+###应用监听系统DrakMode切换：
+1.首先在你的清单里面加上声明：
+
+       <activity
+           android:name=".MyActivity"
+           android:configChanges="uiMode" />
+
+2.然后重写 activity 的 onConfigurationChanged 方法监听：
+
+       if (SkinManager.isNightMode(newConfig)) {
+            SkinManager.getInstance().loadSkin("night.skin");
+       } else {
+            SkinManager.getInstance().restoreDefaultTheme();
+       }
+
+11.使用
 Step 1. Add the JitPack repository to your build file
 Add it in your root build.gradle at the end of repositories:
 
