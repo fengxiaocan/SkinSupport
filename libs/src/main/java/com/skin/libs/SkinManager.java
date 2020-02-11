@@ -68,6 +68,15 @@ public final class SkinManager implements ISkinManager {
     }
 
     /**
+     * 是否是夜间模式
+     * @return
+     */
+    public boolean isNightMode() {
+        Configuration configuration = context.getResources().getConfiguration();
+        return isNightMode(configuration);
+    }
+
+    /**
      * 断言
      */
     private void judge() {
@@ -85,8 +94,9 @@ public final class SkinManager implements ISkinManager {
             SkinFactory skinFactory = skinFactories.get(key);
             skinFactory.apply();
         }
+        boolean hasSkin = isHasSkin();
         for (OnSkinObserver listener : listeners) {
-            listener.onSkinChange();
+            listener.onSkinChange(hasSkin);
         }
     }
 
@@ -99,6 +109,9 @@ public final class SkinManager implements ISkinManager {
         SkinFactory factory = new SkinFactory(activity);
         if (activity instanceof OnSkinViewMonitor) {
             factory.setViewMonitor((OnSkinViewMonitor) activity);
+        }
+        if (activity instanceof OnSkinObserver) {
+           addSkinObserver(((OnSkinObserver) activity));
         }
         skinFactories.put(tag, factory);
     }
@@ -119,6 +132,9 @@ public final class SkinManager implements ISkinManager {
     @Override
     public void unregisterSkin(AppCompatActivity activity) {
         SkinFactory factory = skinFactories.remove(activity.toString());
+        if (activity instanceof OnSkinObserver) {
+            removeSkinObserver(((OnSkinObserver) activity));
+        }
         if (factory != null) {
             factory.recycler();
         }
