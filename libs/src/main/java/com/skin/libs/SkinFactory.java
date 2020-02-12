@@ -7,7 +7,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.skin.libs.attr.AttrFactory;
+import com.skin.libs.attr.SkinAttrFactory;
 import com.skin.libs.attr.SkinAttr;
 import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.iface.OnSkinViewMonitor;
@@ -95,7 +95,7 @@ public class SkinFactory implements LayoutInflater.Factory {
         for (int i = 0; i < attCount; ++i) {
             String attributeName = attrs.getAttributeName(i);
             //是否支持该类型attribute
-            if (AttrFactory.isSupportedAttr(attributeName)) {
+            if (SkinAttrFactory.isSupportedAttr(attributeName)) {
                 String attributeValue = attrs.getAttributeValue(i);
                 if (attributeValue.startsWith("@")) {
                     int resId = Integer.parseInt(attributeValue.substring(1));
@@ -105,7 +105,7 @@ public class SkinFactory implements LayoutInflater.Factory {
                     String resName = context.getResources().getResourceEntryName(resId);
                     String attrType = context.getResources().getResourceTypeName(resId);
 
-                    SkinAttr skinAttr = AttrFactory.createAttr(attributeName, attrType, resName, resId);
+                    SkinAttr skinAttr = SkinAttrFactory.createAttr(attributeName, attrType, resName, resId);
                     if (skinItem == null) {
                         skinItem = new SkinItem(view);
                     }

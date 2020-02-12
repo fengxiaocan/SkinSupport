@@ -14,7 +14,7 @@ import java.util.List;
  * Date:2016/4/14
  * Time:9:47
  */
-public class AttrFactory {
+public class SkinAttrFactory {
 
     private static LinkedHashSet<SkinAttr> sSupportAttr = new LinkedHashSet<>();
 
