@@ -49,8 +49,7 @@ public final class SkinManager implements ISkinManager {
     private Map<String, SkinFactory> skinFactories = new HashMap<>();
     private List<OnSkinObserver> listeners = new ArrayList<>();
 
-    private SkinManager() {
-    }
+    private SkinManager() {}
 
     public static SkinManager getInstance() {
         return mInstance;

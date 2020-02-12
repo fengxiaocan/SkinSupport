@@ -5,6 +5,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.skin.libs.iface.ISkin;
+
 /**
  * 描述:
  * DynamTheme-
@@ -12,7 +14,7 @@ import androidx.annotation.Nullable;
  * @Author thinkpad
  * @create 2018-08-25 13:05
  */
-public abstract class SkinAttr implements Cloneable {
+public abstract class SkinAttr implements ISkin,Cloneable {
     protected static final String RES_TYPE_NAME_COLOR = "color";
     protected static final String RES_TYPE_NAME_DRAWABLE = "drawable";
     protected static final String RES_TYPE_NAME_MIPMAP = "mipmap";
@@ -42,8 +44,6 @@ public abstract class SkinAttr implements Cloneable {
     protected boolean isColor() {
         return RES_TYPE_NAME_COLOR.equals(attrType);
     }
-
-    public abstract void applySkin(View view);
 
     public String getAttrName() {
         return attrName;
