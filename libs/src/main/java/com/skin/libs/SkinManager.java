@@ -122,7 +122,7 @@ public final class SkinManager implements ISkinManager {
 
     @Override
     public void removeSkinObserver(OnSkinObserver skinObserver) {
-        listeners.add(skinObserver);
+        listeners.remove(skinObserver);
     }
 
     /**

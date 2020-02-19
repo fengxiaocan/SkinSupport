@@ -7,8 +7,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.skin.libs.attr.SkinAttrFactory;
 import com.skin.libs.attr.SkinAttr;
+import com.skin.libs.attr.SkinAttrFactory;
 import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.iface.OnSkinViewMonitor;
 
