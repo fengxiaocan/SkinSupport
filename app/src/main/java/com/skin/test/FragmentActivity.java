@@ -1,15 +1,18 @@
 package com.skin.test;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.skin.libs.iface.OnSkinViewMonitor;
+import com.skin.libs.attr.SkinAttrSet;
+import com.skin.libs.iface.OnSkinViewInterceptor;
 import com.skin.libs.SkinManager;
 
-public class FragmentActivity extends BaseActivity implements OnSkinViewMonitor {
+public class FragmentActivity extends BaseActivity implements OnSkinViewInterceptor{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,19 +23,15 @@ public class FragmentActivity extends BaseActivity implements OnSkinViewMonitor 
     }
 
     @Override
-    public boolean isSkinView(View view) {
+    public SkinAttrSet interceptorView(View view,Context context,AttributeSet attrs){
         if (view.getId() == R.id.s_view) {
-            return true;
+            return new SkinAttrSet(view,attrs){
+                @Override
+                public void apply(){
+                    ((SView) view).setImageDrawable(SkinManager.getInstance().getDrawable(R.drawable.ic_bg));
+                }
+            };
         }
-        return false;
-    }
-
-    @Override
-    public boolean applySkin(View view) {
-        if (view instanceof SView) {
-            ((SView) view).setImageDrawable(SkinManager.getInstance().getDrawable(R.drawable.ic_bg));
-            return true;
-        }
-        return false;
+        return null;
     }
 }

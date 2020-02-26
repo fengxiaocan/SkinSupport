@@ -1,7 +1,9 @@
 package com.skin.test;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 
@@ -10,10 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.skin.libs.SkinManager;
-import com.skin.libs.iface.OnSkinViewMonitor;
+import com.skin.libs.attr.SkinAttrSet;
+import com.skin.libs.iface.OnSkinViewInterceptor;
 
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, OnSkinViewMonitor {
+public class MainActivity extends BaseActivity implements View.OnClickListener, OnSkinViewInterceptor{
 
     private Button btnDefault;
 
@@ -54,22 +57,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 break;
         }
     }
-
     @Override
-    public boolean isSkinView(View view) {
+    public SkinAttrSet interceptorView(View view,Context context,AttributeSet attrs){
         if (view.getId() == R.id.s_view) {
-            return true;
+            return new SkinAttrSet(view,attrs){
+                @Override
+                public void apply(){
+                    ((SView) view).setImageDrawable(SkinManager.getInstance().getDrawable(R.drawable.ic_bg));
+                }
+            };
         }
-        return false;
+        return null;
     }
-
-    @Override
-    public boolean applySkin(View view) {
-        if (view instanceof SView) {
-            ((SView) view).setImageDrawable(SkinManager.getInstance().getDrawable(R.drawable.ic_bg));
-            return true;
-        }
-        return false;
-    }
-
 }

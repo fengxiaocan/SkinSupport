@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.iface.ISkinManager;
 import com.skin.libs.iface.OnSkinObserver;
-import com.skin.libs.iface.OnSkinViewMonitor;
+import com.skin.libs.iface.OnSkinViewInterceptor;
 
 import java.io.Closeable;
 import java.io.File;
@@ -106,8 +106,8 @@ public final class SkinManager implements ISkinManager {
     public void registerSkin(AppCompatActivity activity) {
         String tag = activity.toString();
         SkinFactory factory = new SkinFactory(activity);
-        if (activity instanceof OnSkinViewMonitor) {
-            factory.setViewMonitor((OnSkinViewMonitor) activity);
+        if (activity instanceof OnSkinViewInterceptor) {
+            factory.setInterceptor((OnSkinViewInterceptor) activity);
         }
         if (activity instanceof OnSkinObserver) {
            addSkinObserver(((OnSkinObserver) activity));
