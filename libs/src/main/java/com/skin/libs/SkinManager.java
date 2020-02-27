@@ -2,6 +2,7 @@ package com.skin.libs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -11,6 +12,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -40,19 +42,46 @@ import java.util.Set;
  * 2.继续在application中注册所有的皮肤文件 {@link #registerAssetSkin},{@link #registerFileSkin},{@link #registerSkin}
  * 3.
  */
-public final class SkinManager implements ISkinManager {
+public final class SkinManager implements ISkinManager{
 
     private static final SkinManager mInstance = new SkinManager();
     private static final String KEY = "skin_path";
     private Context context;
     private SkinResources skinResources;
-    private Map<String, SkinFactory> skinFactories = new HashMap<>();
+    private Map<String,SkinFactory> skinFactories = new HashMap<>();
     private List<OnSkinObserver> listeners = new ArrayList<>();
 
-    private SkinManager() {}
+    private SkinManager(){
+    }
 
-    public static SkinManager getInstance() {
+    public static SkinManager getInstance(){
         return mInstance;
+    }
+
+    /**
+     * 在{@link android.app.Activity#attachBaseContext(Context)}中注册
+     *
+     * @param newBase
+     * @return
+     */
+    public static Context attachBaseContext(final Context newBase){
+        final LayoutInflater inflater = LayoutInflater.from(newBase);
+        if(inflater instanceof SkinInflater)
+            return newBase;
+        return new ContextWrapper(newBase){
+            private SkinInflater mInflater;
+
+            @Override
+            public Object getSystemService(String name){
+                if(LAYOUT_INFLATER_SERVICE.equals(name)){
+                    if(mInflater == null){
+                        mInflater = new SkinInflater(newBase,inflater);
+                    }
+                    return mInflater;
+                }
+                return super.getSystemService(name);
+            }
+        };
     }
 
     /**
@@ -61,16 +90,17 @@ public final class SkinManager implements ISkinManager {
      * @param configuration
      * @return
      */
-    public static boolean isNightMode(Configuration configuration) {
+    public static boolean isNightMode(Configuration configuration){
         int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     /**
      * 是否是夜间模式
+     *
      * @return
      */
-    public boolean isNightMode() {
+    public boolean isNightMode(){
         Configuration configuration = context.getResources().getConfiguration();
         return isNightMode(configuration);
     }
@@ -78,8 +108,8 @@ public final class SkinManager implements ISkinManager {
     /**
      * 断言
      */
-    private void judge() {
-        if (context == null) {
+    private void judge(){
+        if(context == null){
             throw new IllegalStateException("context is null:SkinManager is must init in application");
         }
     }
@@ -87,14 +117,14 @@ public final class SkinManager implements ISkinManager {
     /**
      * 通知更新
      */
-    private void notifySkinUpdate() {
+    private void notifySkinUpdate(){
         Set<String> keySet = skinFactories.keySet();
-        for (String key : keySet) {
+        for(String key: keySet){
             SkinFactory skinFactory = skinFactories.get(key);
             skinFactory.apply();
         }
         boolean hasSkin = isHasSkin();
-        for (OnSkinObserver listener : listeners) {
+        for(OnSkinObserver listener: listeners){
             listener.onSkinChange(hasSkin);
         }
     }
@@ -103,25 +133,25 @@ public final class SkinManager implements ISkinManager {
      * 在activity中注册
      */
     @Override
-    public void registerSkin(AppCompatActivity activity) {
+    public void registerSkin(AppCompatActivity activity){
         String tag = activity.toString();
         SkinFactory factory = new SkinFactory(activity);
-        if (activity instanceof OnSkinViewInterceptor) {
-            factory.setInterceptor((OnSkinViewInterceptor) activity);
+        if(activity instanceof OnSkinViewInterceptor){
+            factory.setInterceptor((OnSkinViewInterceptor)activity);
         }
-        if (activity instanceof OnSkinObserver) {
-           addSkinObserver(((OnSkinObserver) activity));
+        if(activity instanceof OnSkinObserver){
+            addSkinObserver(((OnSkinObserver)activity));
         }
-        skinFactories.put(tag, factory);
+        skinFactories.put(tag,factory);
     }
 
     @Override
-    public void addSkinObserver(OnSkinObserver skinObserver) {
+    public void addSkinObserver(OnSkinObserver skinObserver){
         listeners.add(skinObserver);
     }
 
     @Override
-    public void removeSkinObserver(OnSkinObserver skinObserver) {
+    public void removeSkinObserver(OnSkinObserver skinObserver){
         listeners.remove(skinObserver);
     }
 
@@ -129,12 +159,12 @@ public final class SkinManager implements ISkinManager {
      * 取消activity的注册监听
      */
     @Override
-    public void unregisterSkin(AppCompatActivity activity) {
+    public void unregisterSkin(AppCompatActivity activity){
         SkinFactory factory = skinFactories.remove(activity.toString());
-        if (activity instanceof OnSkinObserver) {
-            removeSkinObserver(((OnSkinObserver) activity));
+        if(activity instanceof OnSkinObserver){
+            removeSkinObserver(((OnSkinObserver)activity));
         }
-        if (factory != null) {
+        if(factory != null){
             factory.recycler();
         }
     }
@@ -143,7 +173,7 @@ public final class SkinManager implements ISkinManager {
      * 初始化
      */
     @Override
-    public void init(Context context) {
+    public void init(Context context){
         this.context = context.getApplicationContext();
         this.skinResources = new SkinResources(context);
     }
@@ -154,20 +184,20 @@ public final class SkinManager implements ISkinManager {
      * @param name 皮肤的名字
      */
     @Override
-    public void loadSkin(String name) {
+    public void loadSkin(String name){
         judge();
-        if (TextUtils.isEmpty(name))
+        if(TextUtils.isEmpty(name))
             return;
         new LoadTask().execute(name);
     }
 
     @Override
-    public void loadLastSkin() {
+    public void loadLastSkin(){
         //加载上一次的
-        String skinPath = SPUtil.get(context, KEY, "");
-        if (!TextUtils.isEmpty(skinPath)) {
+        String skinPath = SPUtil.get(context,KEY,"");
+        if(! TextUtils.isEmpty(skinPath)){
             File file = new File(skinPath);
-            if (file.exists()) {
+            if(file.exists()){
                 loadSkin(file.getName());
             }
         }
@@ -178,10 +208,10 @@ public final class SkinManager implements ISkinManager {
      * 重置 默认的主题
      */
     @Override
-    public void restoreDefaultTheme() {
+    public void restoreDefaultTheme(){
         judge();
-        skinResources.setSkinResources(null, null);
-        SPUtil.put(context, KEY, "");
+        skinResources.setSkinResources(null,null);
+        SPUtil.put(context,KEY,"");
         notifySkinUpdate();
     }
 
@@ -191,14 +221,14 @@ public final class SkinManager implements ISkinManager {
      * @param skinItem
      */
     @Override
-    public void apply(ISkinItem skinItem) {
-        if (skinItem != null) {
+    public void apply(ISkinItem skinItem){
+        if(skinItem != null){
             skinItem.apply();
         }
     }
 
     @Override
-    public boolean isHasSkin() {
+    public boolean isHasSkin(){
         return skinResources.isHasSkin();
     }
 
@@ -208,8 +238,8 @@ public final class SkinManager implements ISkinManager {
      * @return
      */
     @Override
-    public File getSkinDir() {
-        File skinDir = new File(context.getFilesDir().getParentFile(), "skin");
+    public File getSkinDir(){
+        File skinDir = new File(context.getFilesDir().getParentFile(),"skin");
         skinDir.mkdir();
         return skinDir;
     }
@@ -218,21 +248,21 @@ public final class SkinManager implements ISkinManager {
      * 把asset中的皮肤文件复制到内存卡中
      */
     @Override
-    public void registerAssetSkin(String name) {
-        try {
+    public void registerAssetSkin(String name){
+        try{
             InputStream open = context.getAssets().open(name);
-            registerSkin(open, name);
-        } catch (Exception e) {
+            registerSkin(open,name);
+        } catch(Exception e){
             e.printStackTrace();
         }
     }
 
     @Override
-    public void registerFileSkin(String fileName) {
-        try {
+    public void registerFileSkin(String fileName){
+        try{
             InputStream open = new FileInputStream(fileName);
-            registerSkin(open, fileName);
-        } catch (Exception e) {
+            registerSkin(open,fileName);
+        } catch(Exception e){
             e.printStackTrace();
         }
     }
@@ -241,104 +271,103 @@ public final class SkinManager implements ISkinManager {
      * 注册皮肤
      */
     @Override
-    public void registerSkin(final InputStream is, final String name) {
+    public void registerSkin(final InputStream is,final String name){
         judge();
         File skinDir = getSkinDir();
-        File file = new File(skinDir, name);
+        File file = new File(skinDir,name);
         FileOutputStream fos = null;
-        try {
+        try{
             byte[] data = new byte[2048];
             int nbread = 0;
-            fos = new FileOutputStream(file, false);
-            while ((nbread = is.read(data)) > -1) {
-                fos.write(data, 0, nbread);
+            fos = new FileOutputStream(file,false);
+            while((nbread = is.read(data)) > - 1){
+                fos.write(data,0,nbread);
             }
-        } catch (Exception ex) {
-        } finally {
+        } catch(Exception ex){
+        } finally{
             closeIo(is);
             closeIo(fos);
         }
     }
 
-    private void closeIo(Closeable closeable) {
-        try {
-            if (closeable != null) {
+    private void closeIo(Closeable closeable){
+        try{
+            if(closeable != null){
                 closeable.close();
             }
-        } catch (IOException e) {
+        } catch(IOException e){
         }
     }
 
     @Override
-    public int getColor(int resId) {
+    public int getColor(int resId){
         return skinResources.getColor(resId);
     }
 
     @Override
-    public int getColor(String resName, int resId) {
-        return skinResources.getColor(resName, resId);
+    public int getColor(String resName,int resId){
+        return skinResources.getColor(resName,resId);
     }
 
     @Override
-    public ColorStateList getColorStateList(int resId) {
+    public ColorStateList getColorStateList(int resId){
         return skinResources.getColorStateList(resId);
     }
 
     @Override
-    public ColorStateList getColorStateList(String resName, int resId) {
-        return skinResources.getColorStateList(resName, resId);
+    public ColorStateList getColorStateList(String resName,int resId){
+        return skinResources.getColorStateList(resName,resId);
     }
 
     @Override
-    public Drawable getDrawable(int resId) {
+    public Drawable getDrawable(int resId){
         return skinResources.getDrawable(resId);
     }
 
     @Override
-    public Drawable getDrawable(String resName, int resId) {
-        return skinResources.getDrawable(resName, resId);
+    public Drawable getDrawable(String resName,int resId){
+        return skinResources.getDrawable(resName,resId);
     }
 
     @Override
-    public Drawable getDrawable(String resName, String resType, int resId) {
-        return skinResources.getDrawable(resName, resType, resId);
+    public Drawable getDrawable(String resName,String resType,int resId){
+        return skinResources.getDrawable(resName,resType,resId);
     }
 
     @SuppressLint("StaticFieldLeak")
-    class LoadTask extends AsyncTask<String, Void, Resources> {
+    class LoadTask extends AsyncTask<String,Void,Resources>{
         @Override
-        protected Resources doInBackground(String... paths) {
-            try {
-                File skinFile = new File(getSkinDir(), paths[0]);
-                if (!skinFile.exists()) {
+        protected Resources doInBackground(String... paths){
+            try{
+                File skinFile = new File(getSkinDir(),paths[0]);
+                if(! skinFile.exists()){
                     return null;
                 }
                 String skinPkgPath = skinFile.getAbsolutePath();
 
                 PackageManager mPm = context.getPackageManager();
-                PackageInfo mInfo = mPm.getPackageArchiveInfo(skinPkgPath, PackageManager.GET_ACTIVITIES);
+                PackageInfo mInfo = mPm.getPackageArchiveInfo(skinPkgPath,PackageManager.GET_ACTIVITIES);
                 skinResources.setSkinPackageName(mInfo.packageName);
 
                 AssetManager assetManager = AssetManager.class.newInstance();
-                Method addAssetPath = assetManager.getClass().getMethod("addAssetPath",
-                        String.class);
-                addAssetPath.invoke(assetManager, skinPkgPath);
+                Method addAssetPath = assetManager.getClass().getMethod("addAssetPath",String.class);
+                addAssetPath.invoke(assetManager,skinPkgPath);
                 Resources superRes = context.getResources();
-                Resources skinResource = new Resources(assetManager, superRes
-                        .getDisplayMetrics(), superRes.getConfiguration());
+                Resources skinResource = new Resources(assetManager,superRes.getDisplayMetrics(),
+                        superRes.getConfiguration());
                 //保持皮肤
-                SPUtil.put(context, KEY, skinPkgPath);
+                SPUtil.put(context,KEY,skinPkgPath);
                 return skinResource;
-            } catch (Exception e) {
+            } catch(Exception e){
                 e.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        protected void onPostExecute(Resources resources) {
+        protected void onPostExecute(Resources resources){
             skinResources.setSkinResources(resources);
-            if (skinResources.isHasSkin()) {
+            if(skinResources.isHasSkin()){
                 notifySkinUpdate();
             }
         }

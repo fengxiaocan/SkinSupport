@@ -39,16 +39,12 @@ public class SkinFactory implements LayoutInflater.Factory2{
 
     public SkinFactory(AppCompatActivity activity){
         LayoutInflater inflater = activity.getLayoutInflater();
-        this.factory = inflater.getFactory();
-        this.factory2 = inflater.getFactory2();
         appCompatDelegate = activity.getDelegate();
         inflater.setFactory2(this);
     }
 
     public SkinFactory(Activity activity){
         LayoutInflater inflater = activity.getLayoutInflater();
-        this.factory = inflater.getFactory();
-        this.factory2 = inflater.getFactory2();
         inflater.setFactory2(this);
     }
 
@@ -59,6 +55,24 @@ public class SkinFactory implements LayoutInflater.Factory2{
     public SkinFactory(LayoutInflater.Factory factory){
         this.factory = factory;
     }
+
+    public SkinFactory(){
+    }
+
+    public SkinFactory setFactory(LayoutInflater.Factory factory){
+        if(factory != null){
+            this.factory = factory;
+        }
+        return this;
+    }
+
+    public SkinFactory setFactory2(LayoutInflater.Factory2 factory2){
+        if(factory2 != null){
+            this.factory2 = factory2;
+        }
+        return this;
+    }
+
 
     /**
      * 设置View的监听器
