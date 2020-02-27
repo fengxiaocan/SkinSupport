@@ -37,26 +37,45 @@ public class SkinFactory implements LayoutInflater.Factory2{
     private OnSkinViewInterceptor interceptor;//需要更换皮肤的第三方View监听器
     private List<SoftReference<ISkinItem>> skinItems = new ArrayList<>();
 
-    public SkinFactory(AppCompatActivity activity){
-        LayoutInflater inflater = activity.getLayoutInflater();
+    private void installAppCompat(AppCompatActivity activity){
         appCompatDelegate = activity.getDelegate();
-        inflater.setFactory2(this);
+        installApp(activity);
     }
 
-    public SkinFactory(Activity activity){
+    private void installApp(Activity activity){
         LayoutInflater inflater = activity.getLayoutInflater();
         inflater.setFactory2(this);
-    }
-
-    public SkinFactory(LayoutInflater.Factory2 factory2){
-        this.factory2 = factory2;
-    }
-
-    public SkinFactory(LayoutInflater.Factory factory){
-        this.factory = factory;
     }
 
     public SkinFactory(){
+    }
+
+    public SkinFactory(AppCompatActivity activity){
+        installAppCompat(activity);
+    }
+
+    public SkinFactory(AppCompatActivity activity,LayoutInflater.Factory2 factory2){
+        installAppCompat(activity);
+        this.setFactory2(factory2);
+    }
+
+    public SkinFactory(AppCompatActivity activity,LayoutInflater.Factory factory){
+        installAppCompat(activity);
+        this.setFactory(factory);
+    }
+
+    public SkinFactory(Activity activity){
+        installApp(activity);
+    }
+
+    public SkinFactory(Activity activity,LayoutInflater.Factory2 factory2){
+        installApp(activity);
+        this.setFactory2(factory2);
+    }
+
+    public SkinFactory(Activity activity,LayoutInflater.Factory factory){
+        installApp(activity);
+        this.setFactory(factory);
     }
 
     public SkinFactory setFactory(LayoutInflater.Factory factory){
@@ -72,7 +91,6 @@ public class SkinFactory implements LayoutInflater.Factory2{
         }
         return this;
     }
-
 
     /**
      * 设置View的监听器

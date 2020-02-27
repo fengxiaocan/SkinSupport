@@ -1,6 +1,7 @@
 package com.skin.libs;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageInfo;
@@ -59,32 +60,6 @@ public final class SkinManager implements ISkinManager{
     }
 
     /**
-     * 在{@link android.app.Activity#attachBaseContext(Context)}中注册
-     *
-     * @param newBase
-     * @return
-     */
-    public static Context attachBaseContext(final Context newBase){
-        final LayoutInflater inflater = LayoutInflater.from(newBase);
-        if(inflater instanceof SkinInflater)
-            return newBase;
-        return new ContextWrapper(newBase){
-            private SkinInflater mInflater;
-
-            @Override
-            public Object getSystemService(String name){
-                if(LAYOUT_INFLATER_SERVICE.equals(name)){
-                    if(mInflater == null){
-                        mInflater = new SkinInflater(newBase,inflater);
-                    }
-                    return mInflater;
-                }
-                return super.getSystemService(name);
-            }
-        };
-    }
-
-    /**
      * 是否是夜间模式
      *
      * @param configuration
@@ -130,12 +105,12 @@ public final class SkinManager implements ISkinManager{
     }
 
     /**
-     * 在activity中注册
+     * activity 初始化方法
+     * @param activity
+     * @param factory
      */
-    @Override
-    public void registerSkin(AppCompatActivity activity){
+    private void installActivity(Activity activity,SkinFactory factory){
         String tag = activity.toString();
-        SkinFactory factory = new SkinFactory(activity);
         if(activity instanceof OnSkinViewInterceptor){
             factory.setInterceptor((OnSkinViewInterceptor)activity);
         }
@@ -143,6 +118,39 @@ public final class SkinManager implements ISkinManager{
             addSkinObserver(((OnSkinObserver)activity));
         }
         skinFactories.put(tag,factory);
+    }
+
+    /**
+     * 在activity中注册
+     */
+    @Override
+    public void registerSkin(AppCompatActivity activity){
+        installActivity(activity,new SkinFactory(activity));
+    }
+
+    @Override
+    public void registerSkin(Activity activity){
+        installActivity(activity,new SkinFactory(activity));
+    }
+
+    @Override
+    public void registerSkin(AppCompatActivity activity,LayoutInflater.Factory2 factory2){
+        installActivity(activity,new SkinFactory(activity,factory2));
+    }
+
+    @Override
+    public void registerSkin(Activity activity,LayoutInflater.Factory2 factory2){
+        installActivity(activity,new SkinFactory(activity,factory2));
+    }
+
+    @Override
+    public void registerSkin(AppCompatActivity activity,LayoutInflater.Factory factory){
+        installActivity(activity,new SkinFactory(activity,factory));
+    }
+
+    @Override
+    public void registerSkin(Activity activity,LayoutInflater.Factory factory){
+        installActivity(activity,new SkinFactory(activity,factory));
     }
 
     @Override

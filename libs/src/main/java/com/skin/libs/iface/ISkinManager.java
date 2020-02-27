@@ -1,6 +1,8 @@
 package com.skin.libs.iface;
 
+import android.app.Activity;
 import android.content.Context;
+import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +18,16 @@ public interface ISkinManager extends ISkinResources{
     void init(Context context);
 
     void registerSkin(AppCompatActivity activity);
+
+    void registerSkin(Activity activity);
+
+    void registerSkin(AppCompatActivity activity,LayoutInflater.Factory2 factory2);
+
+    void registerSkin(Activity activity,LayoutInflater.Factory2 factory2);
+
+    void registerSkin(AppCompatActivity activity,LayoutInflater.Factory factory2);
+
+    void registerSkin(Activity activity,LayoutInflater.Factory factory2);
 
     void addSkinObserver(OnSkinObserver skinObserver);
 
