@@ -30,6 +30,7 @@ import java.util.List;
  * @create 2018-08-25 13:02
  */
 public class SkinFactory implements LayoutInflater.Factory2{
+    private static final String[] sClassPrefixList = {"android.widget.","android.webkit.","android.app."};
 
     private LayoutInflater.Factory factory;
     private LayoutInflater.Factory2 factory2;
@@ -131,24 +132,34 @@ public class SkinFactory implements LayoutInflater.Factory2{
 
     private View createView(String name,Context context,AttributeSet attrs){
         View view = null;
-        try{
-            if(- 1 == name.indexOf('.')){    //不带".",说明是系统的View -> 带".",说明是自定义的View
-                if("View".equals(name)){
-                    view = LayoutInflater.from(context).createView(name,"android.view.",attrs);
-                }
-                if(view == null){
-                    view = LayoutInflater.from(context).createView(name,"android.widget.",attrs);
-                }
-                if(view == null){
-                    view = LayoutInflater.from(context).createView(name,"android.webkit.",attrs);
-                }
-            } else{
-                view = LayoutInflater.from(context).createView(name,null,attrs);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        if(- 1 == name.indexOf('.')){    //不带".",说明是系统的View
+            if("View".equals(name)){
+                view = createView(inflater,name,"android.view.",attrs);
             }
-        } catch(Exception e){
+            if(view == null){
+                for(String prefix: sClassPrefixList){
+                    view = createView(inflater,name,prefix,attrs);
+                    if(view != null){
+                        return view;
+                    }
+                }
+            }
+        } else{    //带".",说明是自定义的View
+            view = createView(inflater,name,null,attrs);
         }
         return view;
     }
+
+    private View createView(LayoutInflater inflater,String name,String prefix,AttributeSet attrs){
+        try{
+            return inflater.createView(name,prefix,attrs);
+        } catch(ClassNotFoundException ex){
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
 
     private void collectViewAttr(View view,Context context,AttributeSet attrs){
         if(view instanceof ISkinItem){
