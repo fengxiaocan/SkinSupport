@@ -62,6 +62,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (view.getId() == R.id.s_view) {
             return new SkinAttrSet(view,attrs){
                 @Override
+                public boolean isIncludeAttr(String attributeName){
+                    return true;
+                }
+
+                @Override
                 public void apply(){
                     ((SView) view).setImageDrawable(SkinManager.getInstance().getDrawable(R.drawable.ic_bg));
                 }

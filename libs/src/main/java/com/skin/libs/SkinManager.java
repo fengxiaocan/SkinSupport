@@ -106,10 +106,11 @@ public final class SkinManager implements ISkinManager{
 
     /**
      * activity 初始化方法
+     *
      * @param activity
      * @param factory
      */
-    private void installActivity(Activity activity,SkinFactory factory){
+    void installActivity(Activity activity,SkinFactory factory){
         String tag = activity.toString();
         if(activity instanceof OnSkinViewInterceptor){
             factory.setInterceptor((OnSkinViewInterceptor)activity);
@@ -305,6 +306,27 @@ public final class SkinManager implements ISkinManager{
             }
         } catch(IOException e){
         }
+    }
+
+    @Deprecated
+    private static Context attachBaseContext(Activity activity,Context newBase){
+        //有bug,暂时不能使用该方式
+        final LayoutInflater inflater = LayoutInflater.from(newBase);
+        if(inflater instanceof SkinInflater)
+            return newBase;
+        final SkinInflater mInflater = new SkinInflater(newBase,inflater);
+
+        getInstance().installActivity(activity,(SkinFactory)mInflater.getFactory2());
+
+        return new ContextWrapper(newBase){
+            @Override
+            public Object getSystemService(String name){
+                if(LAYOUT_INFLATER_SERVICE.equals(name)){
+                    return mInflater;
+                }
+                return super.getSystemService(name);
+            }
+        };
     }
 
     @Override

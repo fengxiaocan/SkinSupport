@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.skin.libs.attr.IAttr;
 import com.skin.libs.attr.SkinAttr;
 import com.skin.libs.attr.SkinAttrFactory;
 import com.skin.libs.attr.SkinAttrSet;
@@ -157,6 +158,11 @@ public class SkinFactory implements LayoutInflater.Factory2{
                 SkinManager.getInstance().apply((ISkinItem)view);
             }
         }
+        SkinAttrSet skinAttrSet = null;
+        if(interceptor != null){
+            //拦截第三方控件
+            skinAttrSet = interceptor.interceptorView(view,context,attrs);
+        }
 
         SkinItem skinItem = null;
         int attCount = attrs.getAttributeCount();
@@ -174,10 +180,30 @@ public class SkinFactory implements LayoutInflater.Factory2{
                     String attrType = context.getResources().getResourceTypeName(resId);
 
                     SkinAttr skinAttr = SkinAttrFactory.createAttr(attributeName,attrType,resName,resId);
+
                     if(skinItem == null){
                         skinItem = new SkinItem(view);
                     }
+
+                    if(skinAttrSet != null && skinAttrSet.isIncludeAttr(attributeName)){
+                        //拦截的View的属性,过滤到集合中
+                        skinAttrSet.addAttr(skinAttr);
+                    }
+
                     skinItem.addAttr(skinAttr);
+                }
+            } else if(skinAttrSet != null && skinAttrSet.isIncludeAttr(attributeName)){
+                //拦截的View的属性,过滤到集合中
+                String attributeValue = attrs.getAttributeValue(i);
+                if(attributeValue.startsWith("@")){
+                    int resId = Integer.parseInt(attributeValue.substring(1));
+                    if(resId == 0){
+                        continue;
+                    }
+                    String resName = context.getResources().getResourceEntryName(resId);
+                    String attrType = context.getResources().getResourceTypeName(resId);
+                    IAttr attrSet = new IAttr(attributeName,attrType,resName,resId);
+                    skinAttrSet.addAttr(attrSet);
                 }
             }
         }
@@ -188,16 +214,11 @@ public class SkinFactory implements LayoutInflater.Factory2{
             }
             skinItems.add(new SoftReference<ISkinItem>(skinItem));
         }
-
-        if(interceptor != null){
-            //拦截第三方控件
-            SkinAttrSet attrSet = interceptor.interceptorView(view,context,attrs);
-            if(attrSet != null){
-                //返回的拦截结果不为空,添加到集合中
-                skinItems.add(new SoftReference<ISkinItem>(attrSet));
-                if(SkinManager.getInstance().isHasSkin()){
-                    SkinManager.getInstance().apply(attrSet);
-                }
+        //判断拦截的View的属性是否为空
+        if(skinAttrSet != null){
+            skinItems.add(new SoftReference<ISkinItem>(skinAttrSet));
+            if(SkinManager.getInstance().isHasSkin()){
+                SkinManager.getInstance().apply(skinAttrSet);
             }
         }
     }
