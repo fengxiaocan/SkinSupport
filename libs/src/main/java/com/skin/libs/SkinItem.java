@@ -1,7 +1,6 @@
 package com.skin.libs;
 
 import android.view.View;
-import android.widget.TextView;
 
 import com.skin.libs.attr.SkinAttr;
 import com.skin.libs.iface.ISkinItem;
@@ -9,17 +8,17 @@ import com.skin.libs.iface.ISkinItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkinItem implements ISkinItem {
+public class SkinItem implements ISkinItem{
 
     private View view;
     private List<SkinAttr> attrs;
 
-    public SkinItem(View view, List<SkinAttr> attrs) {
+    public SkinItem(View view,List<SkinAttr> attrs){
         this.view = view;
         this.attrs = attrs;
     }
 
-    public SkinItem(View view) {
+    public SkinItem(View view){
         this.view = view;
         this.attrs = new ArrayList<>();
     }
@@ -28,11 +27,15 @@ public class SkinItem implements ISkinItem {
         this.attrs.add(attr);
     }
 
+    public View getView(){
+        return view;
+    }
+
     @Override
-    public void apply() {
-        if (view == null || attrs == null)
+    public void apply(){
+        if(view == null || attrs == null)
             return;
-        for (SkinAttr attr : attrs) {
+        for(SkinAttr attr: attrs){
             attr.applySkin(view);
         }
     }

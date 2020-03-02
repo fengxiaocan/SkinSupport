@@ -1,5 +1,5 @@
 package com.skin.libs.iface;
 
-public interface OnSkinObserver {
+public interface OnSkinObserver{
     void onSkinChange(boolean isHasSkin);
 }

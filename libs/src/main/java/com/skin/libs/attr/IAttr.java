@@ -59,9 +59,9 @@ public class IAttr implements Cloneable{
         return this;
     }
 
-    public final IAttr clone(String attrName,String attrType, String resName, int resId) {
+    public final IAttr clone(String attrName,String attrType,String resName,int resId){
         IAttr clone = clone();
-        if (clone != null) {
+        if(clone != null){
             clone.attrName = attrName;
             clone.attrType = attrType;
             clone.resId = resId;
@@ -72,20 +72,20 @@ public class IAttr implements Cloneable{
 
     @NonNull
     @Override
-    protected IAttr clone() {
+    protected IAttr clone(){
         IAttr o = null;
-        try {
-            o = (IAttr) super.clone();
-        } catch (CloneNotSupportedException e) {
+        try{
+            o = (IAttr)super.clone();
+        } catch(CloneNotSupportedException e){
             e.printStackTrace();
         }
         return o;
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
-        if (obj instanceof IAttr) {
-            return attrName.equals(((IAttr) obj).attrName);
+    public boolean equals(@Nullable Object obj){
+        if(obj instanceof IAttr){
+            return attrName.equals(((IAttr)obj).attrName);
         }
         return false;
     }

@@ -10,29 +10,29 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.skin.libs.iface.ISkinResources;
 
-public final class SkinResources implements ISkinResources {
+public final class SkinResources implements ISkinResources{
     private final Context context;
     private Resources mSkinResources;
     private String skinPackageName;
 
-    public SkinResources(Context context) {
+    public SkinResources(Context context){
         this.context = context;
     }
 
-    public void setSkinResources(Resources mSkinResources, String skinPackageName) {
+    public void setSkinResources(Resources mSkinResources,String skinPackageName){
         this.mSkinResources = mSkinResources;
         this.skinPackageName = skinPackageName;
     }
 
-    public void setSkinResources(Resources mSkinResources) {
+    public void setSkinResources(Resources mSkinResources){
         this.mSkinResources = mSkinResources;
     }
 
-    public void setSkinPackageName(String skinPackageName) {
+    public void setSkinPackageName(String skinPackageName){
         this.skinPackageName = skinPackageName;
     }
 
-    public boolean isHasSkin() {
+    public boolean isHasSkin(){
         return mSkinResources != null;
     }
 
@@ -42,8 +42,8 @@ public final class SkinResources implements ISkinResources {
      * @param resId 资源id
      * @return
      */
-    private int getOriginColor(int resId) {
-        return ContextCompat.getColor(context, resId);
+    private int getOriginColor(int resId){
+        return ContextCompat.getColor(context,resId);
     }
 
     /**
@@ -52,8 +52,8 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    private ColorStateList getOriginColorStateList(int resId) {
-        return ContextCompat.getColorStateList(context, resId);
+    private ColorStateList getOriginColorStateList(int resId){
+        return ContextCompat.getColorStateList(context,resId);
     }
 
     /**
@@ -62,32 +62,33 @@ public final class SkinResources implements ISkinResources {
      * @param resourceName
      * @return
      */
-    private int getSkinColor(String resourceName, int resId) {
-        try {
-            int newResId = mSkinResources.getIdentifier(resourceName, "color", skinPackageName);
-            if (newResId == 0){
+    private int getSkinColor(String resourceName,int resId){
+        try{
+            int newResId = mSkinResources.getIdentifier(resourceName,"color",skinPackageName);
+            if(newResId == 0){
                 return getOriginColor(newResId);
             }
-            return ResourcesCompat.getColor(mSkinResources, newResId, null);
-        } catch (Exception e) {
+            return ResourcesCompat.getColor(mSkinResources,newResId,null);
+        } catch(Exception e){
             return getOriginColor(resId);
         }
     }
 
     /**
      * 获取皮肤的颜色值集合
+     *
      * @param resourceName
      * @param resId
      * @return
      */
-    private ColorStateList getSkinColorStateList(String resourceName, int resId) {
-        try {
-            int newResId = mSkinResources.getIdentifier(resourceName, "color", skinPackageName);
-            if (newResId == 0){
+    private ColorStateList getSkinColorStateList(String resourceName,int resId){
+        try{
+            int newResId = mSkinResources.getIdentifier(resourceName,"color",skinPackageName);
+            if(newResId == 0){
                 return getOriginColorStateList(newResId);
             }
-            return ResourcesCompat.getColorStateList(mSkinResources, newResId, null);
-        } catch (Exception e) {
+            return ResourcesCompat.getColorStateList(mSkinResources,newResId,null);
+        } catch(Exception e){
             return getOriginColorStateList(resId);
         }
     }
@@ -98,7 +99,7 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    public String getSkinResourceName(int resId) {
+    public String getSkinResourceName(int resId){
         return context.getResources().getResourceEntryName(resId);
     }
 
@@ -108,9 +109,9 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    public int getColor(int resId) {
-        if (isHasSkin()) {
-            return getSkinColor(getSkinResourceName(resId), resId);
+    public int getColor(int resId){
+        if(isHasSkin()){
+            return getSkinColor(getSkinResourceName(resId),resId);
         }
         return getOriginColor(resId);
     }
@@ -122,9 +123,9 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    public int getColor(String resName, int resId) {
-        if (isHasSkin()) {
-            return getSkinColor(resName, resId);
+    public int getColor(String resName,int resId){
+        if(isHasSkin()){
+            return getSkinColor(resName,resId);
         }
         return getOriginColor(resId);
     }
@@ -135,8 +136,8 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    private Drawable getOriginDrawable(int resId) {
-        return ContextCompat.getDrawable(context, resId);
+    private Drawable getOriginDrawable(int resId){
+        return ContextCompat.getDrawable(context,resId);
     }
 
     /**
@@ -146,18 +147,18 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    private Drawable getSkinDrawable(String resName, int resId) {
-        try {
-            int newResId = mSkinResources.getIdentifier(resName, "drawable", skinPackageName);
-            if (newResId == 0) {
+    private Drawable getSkinDrawable(String resName,int resId){
+        try{
+            int newResId = mSkinResources.getIdentifier(resName,"drawable",skinPackageName);
+            if(newResId == 0){
                 //判断是否在mipmap文件夹中存放
-                newResId = mSkinResources.getIdentifier(resName, "mipmap", skinPackageName);
+                newResId = mSkinResources.getIdentifier(resName,"mipmap",skinPackageName);
             }
-            if (newResId == 0) {
+            if(newResId == 0){
                 return getOriginDrawable(resId);
             }
-            return ResourcesCompat.getDrawable(mSkinResources, newResId, null);
-        } catch (Exception e) {
+            return ResourcesCompat.getDrawable(mSkinResources,newResId,null);
+        } catch(Exception e){
             return getOriginDrawable(resId);
         }
     }
@@ -169,23 +170,23 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    public Drawable getDrawable(String resName, int resId) {
-        if (isHasSkin()) {
-            return getSkinDrawable(resName, resId);
+    public Drawable getDrawable(String resName,int resId){
+        if(isHasSkin()){
+            return getSkinDrawable(resName,resId);
         }
         return getOriginDrawable(resId);
     }
 
     @Override
-    public Drawable getDrawable(String resName, String resType, int resId) {
-        if (isHasSkin()) {
-            try {
-                int newResId = mSkinResources.getIdentifier(resName, resType, skinPackageName);
-                if (newResId == 0) {
+    public Drawable getDrawable(String resName,String resType,int resId){
+        if(isHasSkin()){
+            try{
+                int newResId = mSkinResources.getIdentifier(resName,resType,skinPackageName);
+                if(newResId == 0){
                     return getOriginDrawable(resId);
                 }
-                return ResourcesCompat.getDrawable(mSkinResources, newResId, null);
-            } catch (Exception e) {
+                return ResourcesCompat.getDrawable(mSkinResources,newResId,null);
+            } catch(Exception e){
                 return getOriginDrawable(resId);
             }
         }
@@ -198,26 +199,26 @@ public final class SkinResources implements ISkinResources {
      * @param resId
      * @return
      */
-    public Drawable getDrawable(int resId) {
-        if (isHasSkin()) {
-            return getSkinDrawable(getSkinResourceName(resId), resId);
+    public Drawable getDrawable(int resId){
+        if(isHasSkin()){
+            return getSkinDrawable(getSkinResourceName(resId),resId);
         }
         return getOriginDrawable(resId);
     }
 
 
     @Override
-    public ColorStateList getColorStateList(int resId) {
-        if (isHasSkin()) {
-            return getSkinColorStateList(getSkinResourceName(resId), resId);
+    public ColorStateList getColorStateList(int resId){
+        if(isHasSkin()){
+            return getSkinColorStateList(getSkinResourceName(resId),resId);
         }
         return getOriginColorStateList(resId);
     }
 
     @Override
-    public ColorStateList getColorStateList(String resName, int resId) {
-        if (isHasSkin()) {
-            return getSkinColorStateList(resName, resId);
+    public ColorStateList getColorStateList(String resName,int resId){
+        if(isHasSkin()){
+            return getSkinColorStateList(resName,resId);
         }
         return getOriginColorStateList(resId);
     }

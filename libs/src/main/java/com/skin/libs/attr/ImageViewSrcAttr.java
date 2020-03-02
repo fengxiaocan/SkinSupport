@@ -14,23 +14,23 @@ import com.skin.libs.SkinManager;
  * Desc:
  */
 
-public class ImageViewSrcAttr extends SkinAttr {
+public class ImageViewSrcAttr extends SkinAttr{
 
-    public ImageViewSrcAttr() {
+    public ImageViewSrcAttr(){
         super("src");
     }
 
-    public ImageViewSrcAttr(String attrName, String attrType, String resName, int resId) {
-        super(attrName, attrType, resName, resId);
+    public ImageViewSrcAttr(String attrName,String attrType,String resName,int resId){
+        super(attrName,attrType,resName,resId);
     }
 
     @Override
-    public void applySkin(View view) {
-        ImageView iv = (ImageView) view;
-        if (isDrawable()) {
-            iv.setImageDrawable(SkinManager.getInstance().getDrawable(resName, attrType, resId));
-        } else if (isColor()) {
-            iv.setImageDrawable(new ColorDrawable(SkinManager.getInstance().getColor(resName, resId)));
+    public void applySkin(View view){
+        ImageView iv = (ImageView)view;
+        if(isDrawable()){
+            iv.setImageDrawable(SkinManager.getInstance().getDrawable(resName,attrType,resId));
+        } else if(isColor()){
+            iv.setImageDrawable(new ColorDrawable(SkinManager.getInstance().getColor(resName,resId)));
         }
     }
 }

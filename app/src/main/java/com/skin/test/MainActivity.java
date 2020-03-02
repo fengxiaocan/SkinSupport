@@ -38,7 +38,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(myAdapter);
-        startActivity(new Intent(this, FragmentActivity.class));
+//        startActivity(new Intent(this, FragmentActivity.class));
     }
 
     @Override

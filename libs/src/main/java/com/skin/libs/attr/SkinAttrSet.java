@@ -20,6 +20,18 @@ public abstract class SkinAttrSet implements ISkinItem{
         hashSet = new HashSet<>();
     }
 
+    public View getView(){
+        return view;
+    }
+
+    public AttributeSet getAttrs(){
+        return attrs;
+    }
+
+    public Set<IAttr> getAttrSet(){
+        return hashSet;
+    }
+
     public abstract boolean isIncludeAttr(String attributeName);
 
     public final void addAttr(IAttr attrSet){

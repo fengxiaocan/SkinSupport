@@ -3,6 +3,7 @@ package com.skin.libs;
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -18,7 +19,6 @@ import com.skin.libs.attr.SkinAttrSet;
 import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.iface.OnSkinViewInterceptor;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,24 +30,13 @@ import java.util.List;
  * @create 2018-08-25 13:02
  */
 public class SkinFactory implements LayoutInflater.Factory2{
-    private static final String[] sClassPrefixList = {"android.widget.","android.webkit.","android.app."};
-
     private LayoutInflater.Factory factory;
     private LayoutInflater.Factory2 factory2;
     private AppCompatDelegate appCompatDelegate;
+    private AppCompatViewInflater compatViewInflater;
 
     private OnSkinViewInterceptor interceptor;//需要更换皮肤的第三方View监听器
-    private List<SoftReference<ISkinItem>> skinItems = new ArrayList<>();
-
-    private void installAppCompat(AppCompatActivity activity){
-        appCompatDelegate = activity.getDelegate();
-        installApp(activity);
-    }
-
-    private void installApp(Activity activity){
-        LayoutInflater inflater = activity.getLayoutInflater();
-        inflater.setFactory2(this);
-    }
+    private List<ISkinItem> skinItems = new ArrayList<>();
 
     public SkinFactory(){
     }
@@ -78,6 +67,16 @@ public class SkinFactory implements LayoutInflater.Factory2{
     public SkinFactory(Activity activity,LayoutInflater.Factory factory){
         installApp(activity);
         this.setFactory(factory);
+    }
+
+    private void installAppCompat(AppCompatActivity activity){
+        appCompatDelegate = activity.getDelegate();
+        installApp(activity);
+    }
+
+    private void installApp(Activity activity){
+        LayoutInflater inflater = activity.getLayoutInflater();
+        inflater.setFactory2(this);
     }
 
     public SkinFactory setFactory(LayoutInflater.Factory factory){
@@ -121,50 +120,27 @@ public class SkinFactory implements LayoutInflater.Factory2{
         } else if(appCompatDelegate != null){
             view = appCompatDelegate.createView(parent,name,context,attrs);
         }
+
         if(view == null){
-            view = createView(name,context,attrs);
+            if(compatViewInflater == null){
+                compatViewInflater = new AppCompatViewInflater();
+            }
+            view = compatViewInflater.createView(parent,name,context,attrs);
         }
         if(view != null){
             collectViewAttr(view,context,attrs);
+        } else{
+            Log.w("noah","create view be defeated;view name is " + name);
         }
-        return view;
-    }
 
-    private View createView(String name,Context context,AttributeSet attrs){
-        View view = null;
-        LayoutInflater inflater = LayoutInflater.from(context);
-        if(- 1 == name.indexOf('.')){    //不带".",说明是系统的View
-            if("View".equals(name)){
-                view = createView(inflater,name,"android.view.",attrs);
-            }
-            if(view == null){
-                for(String prefix: sClassPrefixList){
-                    view = createView(inflater,name,prefix,attrs);
-                    if(view != null){
-                        return view;
-                    }
-                }
-            }
-        } else{    //带".",说明是自定义的View
-            view = createView(inflater,name,null,attrs);
-        }
         return view;
-    }
-
-    private View createView(LayoutInflater inflater,String name,String prefix,AttributeSet attrs){
-        try{
-            return inflater.createView(name,prefix,attrs);
-        } catch(ClassNotFoundException ex){
-            ex.printStackTrace();
-        }
-        return null;
     }
 
 
     private void collectViewAttr(View view,Context context,AttributeSet attrs){
         if(view instanceof ISkinItem){
             //自定义view的皮肤支持
-            skinItems.add(new SoftReference<>((ISkinItem)view));
+            skinItems.add((ISkinItem)view);
             if(SkinManager.getInstance().isHasSkin()){
                 SkinManager.getInstance().apply((ISkinItem)view);
             }
@@ -223,11 +199,11 @@ public class SkinFactory implements LayoutInflater.Factory2{
             if(SkinManager.getInstance().isHasSkin()){
                 SkinManager.getInstance().apply(skinItem);
             }
-            skinItems.add(new SoftReference<ISkinItem>(skinItem));
+            skinItems.add(skinItem);
         }
         //判断拦截的View的属性是否为空
         if(skinAttrSet != null){
-            skinItems.add(new SoftReference<ISkinItem>(skinAttrSet));
+            skinItems.add(skinAttrSet);
             if(SkinManager.getInstance().isHasSkin()){
                 SkinManager.getInstance().apply(skinAttrSet);
             }
@@ -235,11 +211,19 @@ public class SkinFactory implements LayoutInflater.Factory2{
     }
 
     public void apply(){
-        for(SoftReference<ISkinItem> item: skinItems){
+        for(ISkinItem item: skinItems){
             if(item != null){
-                SkinManager.getInstance().apply(item.get());
+                SkinManager.getInstance().apply(item);
             }
         }
+    }
+
+    public List<ISkinItem> getSkinItems(){
+        return skinItems;
+    }
+
+    public void removeISkinItem(ISkinItem item){
+        skinItems.remove(item);
     }
 
     public void recycler(){

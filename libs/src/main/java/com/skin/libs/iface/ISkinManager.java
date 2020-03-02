@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.skin.libs.SkinFactory;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -33,7 +35,7 @@ public interface ISkinManager extends ISkinResources{
 
     void removeSkinObserver(OnSkinObserver skinObserver);
 
-    void unregisterSkin(AppCompatActivity activity);
+    void unregisterSkin(Activity activity);
 
     /**
      * 加载皮肤
@@ -57,7 +59,10 @@ public interface ISkinManager extends ISkinResources{
      */
     void apply(ISkinItem skinItem);
 
+    SkinFactory getSkinFactory(Activity activity);
+
     boolean isHasSkin();
+
     /**
      * 获取皮肤所在文件夹
      */
@@ -73,5 +78,5 @@ public interface ISkinManager extends ISkinResources{
     /**
      * 注册皮肤
      */
-    void registerSkin(InputStream is, String name);
+    void registerSkin(InputStream is,String name);
 }

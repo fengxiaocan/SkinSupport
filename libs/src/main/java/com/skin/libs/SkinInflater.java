@@ -46,7 +46,7 @@ final class SkinInflater extends LayoutInflater{
                 if(view != null){
                     return view;
                 }
-            } catch(ClassNotFoundException e){
+            } catch(Exception e){
             }
         }
         return super.onCreateView(name,attrs);

@@ -70,6 +70,27 @@ public final class SkinManager implements ISkinManager{
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
+    @Deprecated
+    private static Context attachBaseContext(Activity activity,Context newBase){
+        //有bug,暂时不能使用该方式
+        final LayoutInflater inflater = LayoutInflater.from(newBase);
+        if(inflater instanceof SkinInflater)
+            return newBase;
+        final SkinInflater mInflater = new SkinInflater(newBase,inflater);
+
+        getInstance().installActivity(activity,(SkinFactory)mInflater.getFactory2());
+
+        return new ContextWrapper(newBase){
+            @Override
+            public Object getSystemService(String name){
+                if(LAYOUT_INFLATER_SERVICE.equals(name)){
+                    return mInflater;
+                }
+                return super.getSystemService(name);
+            }
+        };
+    }
+
     /**
      * 是否是夜间模式
      *
@@ -168,7 +189,7 @@ public final class SkinManager implements ISkinManager{
      * 取消activity的注册监听
      */
     @Override
-    public void unregisterSkin(AppCompatActivity activity){
+    public void unregisterSkin(Activity activity){
         SkinFactory factory = skinFactories.remove(activity.toString());
         if(activity instanceof OnSkinObserver){
             removeSkinObserver(((OnSkinObserver)activity));
@@ -212,7 +233,6 @@ public final class SkinManager implements ISkinManager{
         }
     }
 
-
     /**
      * 重置 默认的主题
      */
@@ -234,6 +254,11 @@ public final class SkinManager implements ISkinManager{
         if(skinItem != null){
             skinItem.apply();
         }
+    }
+
+    @Override
+    public SkinFactory getSkinFactory(Activity activity){
+        return skinFactories.get(activity.toString());
     }
 
     @Override
@@ -306,27 +331,6 @@ public final class SkinManager implements ISkinManager{
             }
         } catch(IOException e){
         }
-    }
-
-    @Deprecated
-    private static Context attachBaseContext(Activity activity,Context newBase){
-        //有bug,暂时不能使用该方式
-        final LayoutInflater inflater = LayoutInflater.from(newBase);
-        if(inflater instanceof SkinInflater)
-            return newBase;
-        final SkinInflater mInflater = new SkinInflater(newBase,inflater);
-
-        getInstance().installActivity(activity,(SkinFactory)mInflater.getFactory2());
-
-        return new ContextWrapper(newBase){
-            @Override
-            public Object getSystemService(String name){
-                if(LAYOUT_INFLATER_SERVICE.equals(name)){
-                    return mInflater;
-                }
-                return super.getSystemService(name);
-            }
-        };
     }
 
     @Override
