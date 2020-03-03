@@ -5,19 +5,19 @@ import android.view.View;
 
 import com.skin.libs.iface.ISkinItem;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class SkinAttrSet implements ISkinItem{
 
     protected View view;
     protected AttributeSet attrs;
-    protected Set<IAttr> hashSet;
+    protected Map<String,IAttr> hashSet;
 
     public SkinAttrSet(View view,AttributeSet attrs){
         this.view = view;
         this.attrs = attrs;
-        hashSet = new HashSet<>();
+        hashSet = new HashMap<>();
     }
 
     public View getView(){
@@ -28,14 +28,14 @@ public abstract class SkinAttrSet implements ISkinItem{
         return attrs;
     }
 
-    public Set<IAttr> getAttrSet(){
+    public Map<String,IAttr> getAttrSet(){
         return hashSet;
     }
 
     public abstract boolean isIncludeAttr(String attributeName);
 
     public final void addAttr(IAttr attrSet){
-        hashSet.add(attrSet);
+        hashSet.put(attrSet.attrName,attrSet);
     }
 
 }
