@@ -1,7 +1,7 @@
 package com.skin.libs.attr;
 
 
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 
 /**
  * Created by _SOLID
@@ -10,11 +10,13 @@ import java.util.LinkedHashSet;
  */
 public class SkinAttrFactory{
 
-    private static LinkedHashSet<SkinAttr> sSupportAttr = new LinkedHashSet<>();
+    private static HashMap<String,SkinAttr> sSupportAttr = new HashMap<>();
 
     static{
-        sSupportAttr.add(new BackgroundAttr());
-        sSupportAttr.add(new TextColorAttr());
+        BackgroundAttr backgroundAttr = new BackgroundAttr();
+        sSupportAttr.put(backgroundAttr.getAttrName(),backgroundAttr);
+        TextColorAttr textColorAttr = new TextColorAttr();
+        sSupportAttr.put(textColorAttr.getAttrName(),textColorAttr);
     }
 
     /**
@@ -27,10 +29,9 @@ public class SkinAttrFactory{
      * @return
      */
     public static SkinAttr createAttr(String attrName,String attrType,String resName,int resId){
-        for(SkinAttr skinAttr: sSupportAttr){
-            if(skinAttr.getAttrName().equals(attrName)){
-                return skinAttr.clone(attrType,resName,resId);
-            }
+        SkinAttr skinAttr = sSupportAttr.get(attrName);
+        if(skinAttr != null){
+            return skinAttr.clone(attrType,resName,resId);
         }
         return null;
     }
@@ -42,12 +43,7 @@ public class SkinAttrFactory{
      * @return
      */
     public static boolean isSupportedAttr(String attrName){
-        for(SkinAttr skinAttr: sSupportAttr){
-            if(skinAttr.getAttrName().equals(attrName)){
-                return true;
-            }
-        }
-        return false;
+        return sSupportAttr.containsKey(attrName);
     }
 
     /**
@@ -56,11 +52,12 @@ public class SkinAttrFactory{
      * @param skinAttr
      */
     public static void addSupportAttr(SkinAttr skinAttr){
-        sSupportAttr.add(skinAttr);
+        sSupportAttr.put(skinAttr.getAttrName(),skinAttr);
     }
 
     public static void addSupportSrcAttr(){
-        sSupportAttr.add(new ImageViewSrcAttr());
+        ImageViewSrcAttr srcAttr = new ImageViewSrcAttr();
+        sSupportAttr.put(srcAttr.getAttrName(),srcAttr);
     }
 
 }

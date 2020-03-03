@@ -1,6 +1,7 @@
 package com.skin.libs;
 
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.skin.libs.attr.SkinAttr;
 import com.skin.libs.iface.ISkinItem;
