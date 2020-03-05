@@ -122,6 +122,7 @@ public final class SkinManager implements ISkinManager{
     @Override
     public void registerSkin(Activity activity){
         init(activity);
+
         LayoutInflater inflater = LayoutInflater.from(activity);
         LayoutInflater.Factory2 factory2 = inflater.getFactory2();
         SkinFactory skinFactory = new SkinFactory();

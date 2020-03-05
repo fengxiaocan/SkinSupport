@@ -53,7 +53,7 @@ public class SkinLayoutInflaterFactory implements LayoutInflater.Factory2{
 
         try{
             view = AppCompatInflaterHelper.createView(parent,name,context,attrs);
-        } catch(Exception e){
+        } catch(Throwable e){
         }
         if(view == null){
             view = createView(name,context,attrs);
@@ -73,15 +73,16 @@ public class SkinLayoutInflaterFactory implements LayoutInflater.Factory2{
             try{
                 Class<? extends View> aClass = context.getClassLoader().loadClass(name).asSubclass(View.class);
                 constructor = aClass.getConstructor(sConstructorSignature);
+                constructor.setAccessible(true);
                 sConstructorMap.put(name,constructor);
-            } catch(Exception e){
+            } catch(Throwable e){
                 e.printStackTrace();
             }
         }
         if(constructor != null){
             try{
                 return constructor.newInstance(context,attrs);
-            } catch(Exception e){
+            } catch(Throwable e){
                 e.printStackTrace();
             }
         }

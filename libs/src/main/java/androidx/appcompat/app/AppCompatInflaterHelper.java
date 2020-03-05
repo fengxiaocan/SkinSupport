@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 
 public class AppCompatInflaterHelper{
+    private static final String[] sClassPrefixList =
+            {"android.widget.","android.webkit.","android.app.","android.view."};
     static final AppCompatViewInflater appCompatViewInflater = new AppCompatViewInflater();
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
 
@@ -28,7 +30,7 @@ public class AppCompatInflaterHelper{
                     IS_PRE_LOLLIPOP,
                     true,
                     VectorEnabledTintResources.shouldBeUsed());
-        } catch(Exception e){
+        } catch(Throwable e){
         }
         if(view == null){
             try{
@@ -43,10 +45,33 @@ public class AppCompatInflaterHelper{
                         view = createFrameLayout(context,attrs);
                         break;
                     default:
-                        view = LayoutInflater.from(context).createView(name,null,attrs);
+                        view = onCreateView(name, context, attrs);
                         break;
                 }
+            } catch(Throwable e){
+            }
+        }
+        return view;
+    }
+
+    private static View onCreateView(final String name,@NonNull Context context,@NonNull AttributeSet attrs){
+        View view = null;
+        LayoutInflater from = LayoutInflater.from(context);
+        if(name.indexOf(".") == -1){
+            for(String prefix: sClassPrefixList){
+                try{
+                    view = from.createView(name,prefix,attrs);
+                    if(view != null){
+                       return view;
+                    }
+                } catch(Exception e){
+                }
+            }
+        }else {
+            try{
+                view = from.createView(name,null,attrs);
             } catch(Exception e){
+                e.printStackTrace();
             }
         }
         return view;
