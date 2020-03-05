@@ -1,6 +1,7 @@
 package com.skin.test;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private Button btnBlue;
 
     private RecyclerView recyclerView;
+
 
     @Nullable
     @Override

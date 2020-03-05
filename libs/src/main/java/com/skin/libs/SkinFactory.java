@@ -1,22 +1,17 @@
 package com.skin.libs;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 
 import com.skin.libs.attr.IAttr;
 import com.skin.libs.attr.SkinAttr;
 import com.skin.libs.attr.SkinAttrFactory;
 import com.skin.libs.attr.SkinAttrSet;
 import com.skin.libs.iface.ISkinItem;
+import com.skin.libs.iface.OnInflaterInterceptor;
 import com.skin.libs.iface.OnSkinViewInterceptor;
 
 import java.util.ArrayList;
@@ -24,74 +19,12 @@ import java.util.List;
 
 /**
  * 描述:
- * DynamTheme-
- *
- * @Author thinkpad
- * @create 2018-08-25 13:02
  */
-public class SkinFactory implements LayoutInflater.Factory2{
-    private LayoutInflater.Factory factory;
-    private LayoutInflater.Factory2 factory2;
-    private AppCompatDelegate appCompatDelegate;
-    private AppCompatViewInflater compatViewInflater;
+public class SkinFactory implements OnInflaterInterceptor{
 
+    private final List<ISkinItem> skinItems = new ArrayList<>();
     private OnSkinViewInterceptor interceptor;//需要更换皮肤的第三方View监听器
-    private List<ISkinItem> skinItems = new ArrayList<>();
 
-    public SkinFactory(){
-    }
-
-    public SkinFactory(AppCompatActivity activity){
-        installAppCompat(activity);
-    }
-
-    public SkinFactory(AppCompatActivity activity,LayoutInflater.Factory2 factory2){
-        installAppCompat(activity);
-        this.setFactory2(factory2);
-    }
-
-    public SkinFactory(AppCompatActivity activity,LayoutInflater.Factory factory){
-        installAppCompat(activity);
-        this.setFactory(factory);
-    }
-
-    public SkinFactory(Activity activity){
-        installApp(activity);
-    }
-
-    public SkinFactory(Activity activity,LayoutInflater.Factory2 factory2){
-        installApp(activity);
-        this.setFactory2(factory2);
-    }
-
-    public SkinFactory(Activity activity,LayoutInflater.Factory factory){
-        installApp(activity);
-        this.setFactory(factory);
-    }
-
-    private void installAppCompat(AppCompatActivity activity){
-        appCompatDelegate = activity.getDelegate();
-        installApp(activity);
-    }
-
-    private void installApp(Activity activity){
-        LayoutInflater inflater = activity.getLayoutInflater();
-        inflater.setFactory2(this);
-    }
-
-    public SkinFactory setFactory(LayoutInflater.Factory factory){
-        if(factory != null){
-            this.factory = factory;
-        }
-        return this;
-    }
-
-    public SkinFactory setFactory2(LayoutInflater.Factory2 factory2){
-        if(factory2 != null){
-            this.factory2 = factory2;
-        }
-        return this;
-    }
 
     /**
      * 设置View的监听器
@@ -102,42 +35,7 @@ public class SkinFactory implements LayoutInflater.Factory2{
         this.interceptor = interceptor;
     }
 
-    @Override
-    public View onCreateView(String name,Context context,AttributeSet attrs){
-        return onCreateView(null,name,context,attrs);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@Nullable View parent,@NonNull String name,@NonNull Context context,
-            @NonNull AttributeSet attrs)
-    {
-        View view = null;
-        if(factory2 != null){
-            view = factory2.onCreateView(parent,name,context,attrs);
-        } else if(factory != null){
-            view = factory.onCreateView(name,context,attrs);
-        } else if(appCompatDelegate != null){
-            view = appCompatDelegate.createView(parent,name,context,attrs);
-        }
-
-        if(view == null){
-            if(compatViewInflater == null){
-                compatViewInflater = new AppCompatViewInflater();
-            }
-            view = compatViewInflater.createView(parent,name,context,attrs);
-        }
-        if(view != null){
-            collectViewAttr(view,context,attrs);
-        } else{
-            Log.w("noah","create view be defeated;view name is " + name);
-        }
-
-        return view;
-    }
-
-
-    private void collectViewAttr(View view,Context context,AttributeSet attrs){
+    public void collectViewAttr(View view,Context context,AttributeSet attrs){
         if(view instanceof ISkinItem){
             //自定义view的皮肤支持
             skinItems.add((ISkinItem)view);
@@ -228,8 +126,11 @@ public class SkinFactory implements LayoutInflater.Factory2{
 
     public void recycler(){
         skinItems.clear();
-        skinItems = null;
         interceptor = null;
     }
 
+    @Override
+    public void interceptorCreateView(Context context,View view,String name,AttributeSet attrs){
+        collectViewAttr(view,context,attrs);
+    }
 }

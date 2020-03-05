@@ -3,7 +3,6 @@ package com.skin.libs;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -15,10 +14,9 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.skin.libs.iface.ISkinItem;
 import com.skin.libs.iface.ISkinManager;
+import com.skin.libs.iface.OnInflaterInterceptor;
 import com.skin.libs.iface.OnSkinObserver;
 import com.skin.libs.iface.OnSkinViewInterceptor;
 
@@ -70,25 +68,11 @@ public final class SkinManager implements ISkinManager{
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
-    @Deprecated
-    private static Context attachBaseContext(Activity activity,Context newBase){
-        //有bug,暂时不能使用该方式
+    public static Context attachBaseContext(Context newBase){
         final LayoutInflater inflater = LayoutInflater.from(newBase);
-        if(inflater instanceof SkinInflater)
+        if(inflater instanceof SkinLayoutInflater)
             return newBase;
-        final SkinInflater mInflater = new SkinInflater(newBase,inflater);
-
-        getInstance().installActivity(activity,(SkinFactory)mInflater.getFactory2());
-
-        return new ContextWrapper(newBase){
-            @Override
-            public Object getSystemService(String name){
-                if(LAYOUT_INFLATER_SERVICE.equals(name)){
-                    return mInflater;
-                }
-                return super.getSystemService(name);
-            }
-        };
+        return new LayoutInflaterContext(newBase);
     }
 
     /**
@@ -101,14 +85,6 @@ public final class SkinManager implements ISkinManager{
         return isNightMode(configuration);
     }
 
-    /**
-     * 断言
-     */
-    private void judge(){
-        if(context == null){
-            throw new IllegalStateException("context is null:SkinManager is must init in application");
-        }
-    }
 
     /**
      * 通知更新
@@ -142,37 +118,27 @@ public final class SkinManager implements ISkinManager{
         skinFactories.put(tag,factory);
     }
 
-    /**
-     * 在activity中注册
-     */
-    @Override
-    public void registerSkin(AppCompatActivity activity){
-        installActivity(activity,new SkinFactory(activity));
-    }
 
     @Override
     public void registerSkin(Activity activity){
-        installActivity(activity,new SkinFactory(activity));
-    }
-
-    @Override
-    public void registerSkin(AppCompatActivity activity,LayoutInflater.Factory2 factory2){
-        installActivity(activity,new SkinFactory(activity,factory2));
-    }
-
-    @Override
-    public void registerSkin(Activity activity,LayoutInflater.Factory2 factory2){
-        installActivity(activity,new SkinFactory(activity,factory2));
-    }
-
-    @Override
-    public void registerSkin(AppCompatActivity activity,LayoutInflater.Factory factory){
-        installActivity(activity,new SkinFactory(activity,factory));
-    }
-
-    @Override
-    public void registerSkin(Activity activity,LayoutInflater.Factory factory){
-        installActivity(activity,new SkinFactory(activity,factory));
+        init(activity);
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        LayoutInflater.Factory2 factory2 = inflater.getFactory2();
+        SkinFactory skinFactory = new SkinFactory();
+        if(factory2 instanceof SkinLayoutInflaterFactory){
+            ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor(skinFactory);
+            if(activity instanceof OnInflaterInterceptor){
+                ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor((OnInflaterInterceptor)activity);
+            }
+        } else{
+            SkinLayoutInflaterFactory inflaterFactory = new SkinLayoutInflaterFactory();
+            inflaterFactory.addOnInflaterInterceptor(skinFactory);
+            inflater.setFactory2(inflaterFactory);
+            if(activity instanceof OnInflaterInterceptor){
+                inflaterFactory.addOnInflaterInterceptor((OnInflaterInterceptor)activity);
+            }
+        }
+        installActivity(activity,skinFactory);
     }
 
     @Override
@@ -204,8 +170,12 @@ public final class SkinManager implements ISkinManager{
      */
     @Override
     public void init(Context context){
-        this.context = context.getApplicationContext();
-        this.skinResources = new SkinResources(context);
+        if(this.context == null){
+            this.context = context.getApplicationContext();
+        }
+        if(this.skinResources == null){
+            this.skinResources = new SkinResources(context);
+        }
     }
 
     /**
@@ -215,7 +185,6 @@ public final class SkinManager implements ISkinManager{
      */
     @Override
     public void loadSkin(String name){
-        judge();
         if(TextUtils.isEmpty(name))
             return;
         new LoadTask().execute(name);
@@ -238,7 +207,6 @@ public final class SkinManager implements ISkinManager{
      */
     @Override
     public void restoreDefaultTheme(){
-        judge();
         skinResources.setSkinResources(null,null);
         SPUtil.put(context,KEY,"");
         notifySkinUpdate();
@@ -306,7 +274,6 @@ public final class SkinManager implements ISkinManager{
      */
     @Override
     public void registerSkin(final InputStream is,final String name){
-        judge();
         File skinDir = getSkinDir();
         File file = new File(skinDir,name);
         FileOutputStream fos = null;
@@ -387,7 +354,8 @@ public final class SkinManager implements ISkinManager{
                 Method addAssetPath = assetManager.getClass().getMethod("addAssetPath",String.class);
                 addAssetPath.invoke(assetManager,skinPkgPath);
                 Resources superRes = context.getResources();
-                Resources skinResource = new Resources(assetManager,superRes.getDisplayMetrics(),
+                Resources skinResource = new Resources(assetManager,
+                        superRes.getDisplayMetrics(),
                         superRes.getConfiguration());
                 //保持皮肤
                 SPUtil.put(context,KEY,skinPkgPath);
