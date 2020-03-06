@@ -23,7 +23,11 @@ public interface ISkinManager extends ISkinResources{
 
     void addSkinObserver(OnSkinObserver skinObserver);
 
+    void addOnInflaterInterceptor(Context context,OnInflaterInterceptor interceptor);
+
     void removeSkinObserver(OnSkinObserver skinObserver);
+
+    void removeOnInflaterInterceptor(Context context,OnInflaterInterceptor interceptor);
 
     void unregisterSkin(Activity activity);
 

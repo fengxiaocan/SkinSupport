@@ -131,7 +131,7 @@ public final class SkinManager implements ISkinManager{
             if(activity instanceof OnInflaterInterceptor){
                 ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor((OnInflaterInterceptor)activity);
             }
-            
+
             ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor(skinFactory);
         } else{
             SkinLayoutInflaterFactory inflaterFactory = new SkinLayoutInflaterFactory();
@@ -152,8 +152,35 @@ public final class SkinManager implements ISkinManager{
     }
 
     @Override
+    public void addOnInflaterInterceptor(Context context,OnInflaterInterceptor interceptor){
+        init(context);
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater.Factory2 factory2 = inflater.getFactory2();
+
+        if(factory2 instanceof SkinLayoutInflaterFactory){
+            //先添加别的拦截器
+            ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor(interceptor);
+        }
+    }
+
+
+    @Override
     public void removeSkinObserver(OnSkinObserver skinObserver){
         listeners.remove(skinObserver);
+    }
+
+    @Override
+    public void removeOnInflaterInterceptor(Context context,OnInflaterInterceptor interceptor){
+        init(context);
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater.Factory2 factory2 = inflater.getFactory2();
+
+        if(factory2 instanceof SkinLayoutInflaterFactory){
+            //先添加别的拦截器
+            ((SkinLayoutInflaterFactory)factory2).removeOnInflaterInterceptor(interceptor);
+        }
     }
 
     /**
