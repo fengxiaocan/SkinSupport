@@ -4,8 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.skin.libs.attr.IAttr;
 import com.skin.libs.attr.SkinAttr;
 import com.skin.libs.attr.SkinAttrFactory;
@@ -92,19 +90,18 @@ public class SkinFactory implements OnInflaterInterceptor{
                 }
             }
         }
-
-        if(skinItem != null){
-            if(SkinManager.getInstance().isHasSkin()){
-                SkinManager.getInstance().apply(skinItem);
-            }
-            skinItems.add(skinItem);
-        }
         //判断拦截的View的属性是否为空
         if(skinAttrSet != null){
             skinItems.add(skinAttrSet);
             if(SkinManager.getInstance().isHasSkin()){
                 SkinManager.getInstance().apply(skinAttrSet);
             }
+        }
+        if(skinItem != null){
+            if(SkinManager.getInstance().isHasSkin()){
+                SkinManager.getInstance().apply(skinItem);
+            }
+            skinItems.add(skinItem);
         }
     }
 

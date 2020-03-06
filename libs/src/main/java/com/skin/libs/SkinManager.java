@@ -127,17 +127,21 @@ public final class SkinManager implements ISkinManager{
         LayoutInflater.Factory2 factory2 = inflater.getFactory2();
         SkinFactory skinFactory = new SkinFactory();
         if(factory2 instanceof SkinLayoutInflaterFactory){
-            ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor(skinFactory);
+            //先添加别的拦截器
             if(activity instanceof OnInflaterInterceptor){
                 ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor((OnInflaterInterceptor)activity);
             }
+            
+            ((SkinLayoutInflaterFactory)factory2).addOnInflaterInterceptor(skinFactory);
         } else{
             SkinLayoutInflaterFactory inflaterFactory = new SkinLayoutInflaterFactory();
-            inflaterFactory.addOnInflaterInterceptor(skinFactory);
-            inflater.setFactory2(inflaterFactory);
+            //先添加别的拦截器
             if(activity instanceof OnInflaterInterceptor){
                 inflaterFactory.addOnInflaterInterceptor((OnInflaterInterceptor)activity);
             }
+
+            inflaterFactory.addOnInflaterInterceptor(skinFactory);
+            inflater.setFactory2(inflaterFactory);
         }
         installActivity(activity,skinFactory);
     }
