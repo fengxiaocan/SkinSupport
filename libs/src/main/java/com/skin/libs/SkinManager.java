@@ -2,6 +2,7 @@ package com.skin.libs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -60,12 +61,13 @@ public final class SkinManager implements ISkinManager{
     /**
      * 是否是夜间模式
      *
-     * @param configuration
      * @return
      */
-    public static boolean isNightMode(Configuration configuration){
-        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+    public static boolean isNightMode(Context context){
+//        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+//        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+        UiModeManager uiModeManager= (UiModeManager)context.getSystemService(Context.UI_MODE_SERVICE);
+        return uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_YES;
     }
 
     public static Context attachBaseContext(Context newBase){
@@ -81,8 +83,7 @@ public final class SkinManager implements ISkinManager{
      * @return
      */
     public boolean isNightMode(){
-        Configuration configuration = context.getResources().getConfiguration();
-        return isNightMode(configuration);
+        return isNightMode(context);
     }
 
 
