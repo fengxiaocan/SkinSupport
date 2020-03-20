@@ -64,10 +64,11 @@ public final class SkinManager implements ISkinManager{
      * @return
      */
     public static boolean isNightMode(Context context){
-//        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-//        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-        UiModeManager uiModeManager= (UiModeManager)context.getSystemService(Context.UI_MODE_SERVICE);
-        return uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_YES;
+        Configuration configuration = context.getResources().getConfiguration();
+        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+//        UiModeManager uiModeManager = (UiModeManager)context.getSystemService(Context.UI_MODE_SERVICE);
+//        return uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_YES;
     }
 
     public static Context attachBaseContext(Context newBase){
