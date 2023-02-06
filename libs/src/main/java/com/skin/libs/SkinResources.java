@@ -69,7 +69,7 @@ public final class SkinResources implements ISkinResources{
                 return getOriginColor(newResId);
             }
             return ResourcesCompat.getColor(mSkinResources,newResId,null);
-        } catch(Exception e){
+        } catch(Throwable e){
             return getOriginColor(resId);
         }
     }

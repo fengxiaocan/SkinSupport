@@ -35,7 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity{
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig){
         super.onConfigurationChanged(newConfig);
-        if(SkinManager.isNightMode(newConfig)){
+        if(SkinManager.isNightMode(this)){
             SkinManager.getInstance().loadSkin("night.skin");
         } else{
             SkinManager.getInstance().restoreDefaultTheme();

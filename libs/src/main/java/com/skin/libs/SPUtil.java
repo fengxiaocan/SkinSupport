@@ -21,9 +21,9 @@ class SPUtil{
     /**
      * 得到保存数据的方法，我们根据默认值得到保存的数据的具体类型，然后调用相对于的方法获取值
      *
-     * @param context
-     * @param key
-     * @param defaultObject
+     * @param context 上下文
+     * @param key key值
+     * @param defaultObject 默认值
      * @return
      */
     public static String get(Context context,String key,String defaultObject){
